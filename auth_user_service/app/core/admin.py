@@ -4,51 +4,43 @@ Django admin configuration for the auth_user_service app.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-
 from core import models
 
+
 class UserAdmin(BaseUserAdmin):
-    """Define the admin page for users"""
+    """Define the admin page for users."""
     ordering = ['id']
-    list_display = ['email', 'first_name', 'last_name']
+    list_display = ['email', 'first_name', 'last_name', 'role']
+
     fieldsets = (
-        (
-            _('Personal info'),
-            {'fields': ('email', 'password')}),
-        (
-            _('Permissions'),
-            {
-                'fields': (
-                    'is_active',
-                    'is_staff',
-                    'is_superuser'
-                )
-            }
-
-        ),
-        (
-            _('Important dates'),
-            {
-                'fields': ('last_login',)
-            }
-
-        )
+        (_('Personal info'), {'fields': ('email', 'password', 'first_name', 'last_name', 'role')}),
+        (_('Permissions'), {
+            'fields': (
+                'is_active',
+                'is_staff',
+                'is_superuser',
+                'groups',
+                'user_permissions',
+            )
+        }),
+        (_('Important dates'), {'fields': ('last_login',)}),
     )
+
     add_fieldsets = (
-        (
-            'Personal info',
-            {
-                'classes': ('wide',),
-                'fields': (
-                    'email',
-                    'password1',
-                    'password2',
-                    'is_active',
-                    'is_staff',
-                    'is_superuser'
-                )
-            }
-        ),
+        (_('Personal info'), {
+            'classes': ('wide',),
+            'fields': (
+                'email',
+                'first_name',
+                'last_name',
+                'password1',
+                'password2',
+                'role',
+                'is_active',
+                'is_staff',
+                'is_superuser',
+            ),
+        }),
     )
 
 
