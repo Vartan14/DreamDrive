@@ -1,14 +1,13 @@
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-import jwt
-from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+
 
 User = get_user_model()
-
 TOKEN_URL = '/api/user/token/'
 REFRESH_URL = '/api/user/token/refresh/'
+
 
 class JWTAuthTests(APITestCase):
 
@@ -67,25 +66,18 @@ class JWTAuthTests(APITestCase):
 
     def test_user_data_in_token(self):
         """Test that user data is correctly included in the JWT token"""
-        # Get token
         payload = {
             'email': 'test@example.com',
-            'password': 'testpass123'
+            'password': 'testpass123',
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        # Ensure that we receive the access token
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        access_token = res.data['access']
+        access_token_str = res.data['access']
 
-        # Decode the JWT token without verifying the signature (for testing purposes)
-        decoded_token = jwt.decode(access_token,
-                                   settings.SECRET_KEY,
-                                   algorithms=["HS256"],
-                                   options={"verify_exp": False})
+        # Decode the token using SimpleJWT AccessToken
+        access_token = AccessToken(access_token_str)
 
-        # Check if the user email and user_id are in the token payload
-        self.assertEqual(decoded_token['email'], 'test@example.com')
-        self.assertEqual(decoded_token['user_id'], self.user.id)
-        self.assertEqual(decoded_token['first_name'], 'Test')
-        self.assertEqual(decoded_token['last_name'], 'User')
+        self.assertEqual(access_token['user_id'], self.user.id)
+        self.assertEqual(access_token['email'], 'test@example.com')
+        self.assertEqual(access_token['role'], 'student')

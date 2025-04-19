@@ -7,11 +7,9 @@ from rest_framework.generics import (
     ListAPIView
 )
 from rest_framework.permissions import IsAuthenticated
-
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from user.serializers import UserSerializer, MyTokenObtainPairSerializer
+from user.serializers import UserSerializer
 from core.permissions import IsAdminRole
 
 

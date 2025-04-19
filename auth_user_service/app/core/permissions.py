@@ -1,4 +1,8 @@
+"""
+Custom permissions for the application.
+"""
 from rest_framework import permissions
+
 
 class IsAdminRole(permissions.BasePermission):
     """Allows access only to users with role 'admin'."""
