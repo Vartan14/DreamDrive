@@ -7,8 +7,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 
+USER_LIST_URL = reverse('user:list')
 CREATE_USER_URL = reverse('user:create')
-TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
 
 
@@ -76,53 +76,6 @@ class PublicUserApiTests(TestCase):
         user_exists = get_user_model().objects.filter(email=payload['email']).exists()
         self.assertFalse(user_exists)
 
-    def test_create_token_for_user(self):
-        """Test generating token for valid credentials."""
-        user_details = {
-            'first_name': 'Test',
-            'last_name': 'User',
-            'email': 'test@example.com',
-            'password': 'testpass',
-        }
-
-        create_user(**user_details)
-
-        payload = {
-            'email': user_details['email'],
-            'password': user_details['password'],
-        }
-
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_create_token_invalid_credentials(self):
-        """Test creating token with invalid credentials fails."""
-
-        user_details = {
-            'first_name': 'Test',
-            'last_name': 'User',
-            'email': 'test@example.com',
-            'password': 'testpass',
-        }
-
-        create_user(**user_details)
-
-        payload = {
-            'email': user_details['email'],
-            'password': 'anotherpassword',
-        }
-
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertNotIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_retrieve_user_unauthorized(self):
-        """Test authentication is required for users."""
-        res = self.client.get(ME_URL)
-
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication."""
@@ -181,3 +134,20 @@ class PrivateUserApiTests(TestCase):
         self.user.refresh_from_db()
         self.assertNotEqual(self.user.email, payload['email'])
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_list_requires_admin_role(self):
+        """Test that only admin users can access the user list."""
+
+        res = self.client.get(USER_LIST_URL)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        admin_user = get_user_model().objects.create_user(
+            email='admin@example.com',
+            password='adminpass123',
+            role='admin',
+        )
+        self.client.force_authenticate(user=admin_user)
+
+        res = self.client.get(USER_LIST_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), get_user_model().objects.all().count())

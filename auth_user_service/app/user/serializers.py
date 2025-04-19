@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
@@ -42,32 +42,16 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-class TokenSerializer(serializers.Serializer):
-    """Serializer for user authentication tokens."""
-    email = serializers.EmailField()
-    password = serializers.CharField(
-        style={'input_type': 'password'},
-        trim_whitespace=False,
-    )
 
-    def validate(self, attrs):
-        """Validate the user credentials."""
-        email = attrs.get('email')
-        password = attrs.get('password')
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom serializer to include additional data in JWT response."""
 
-        if not email or not password:
-            msg = _('Must include "email" and "password".')
-            raise serializers.ValidationError(msg, code='authorization')
+    @classmethod
+    def get_token(cls, user):
+        """Generate a token for the user with additional claims."""
+        token = super().get_token(user)
 
-        user = authenticate(
-            request=self.context.get('request'),
-            username=email,
-            password=password
-        )
-
-        if not user:
-            msg = _('Unable to log in with provided credentials.')
-            raise serializers.ValidationError(msg, code='authorization')
-
-        attrs['user'] = user
-        return attrs
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+        return token
