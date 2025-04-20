@@ -7,9 +7,9 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 
-USER_LIST_URL = reverse('user:list')
-CREATE_USER_URL = reverse('user:create')
+CREATE_USER_URL = reverse('user:register')
 ME_URL = reverse('user:me')
+CHANGE_PASSWORD_URL = reverse('user:change_password')
 
 
 def create_user(**params):
@@ -135,19 +135,42 @@ class PrivateUserApiTests(TestCase):
         self.assertNotEqual(self.user.email, payload['email'])
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_user_list_requires_admin_role(self):
-        """Test that only admin users can access the user list."""
+    """
+    Change password tests
+    """
+    def test_change_password_success(self):
+        """Test changing password with valid data is successful."""
+        payload = {
+            'old_password': 'password',
+            'new_password': 'newsecurepassword123',
+        }
 
-        res = self.client.get(USER_LIST_URL)
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-
-        admin_user = get_user_model().objects.create_user(
-            email='admin@example.com',
-            password='adminpass123',
-            role='admin',
-        )
-        self.client.force_authenticate(user=admin_user)
-
-        res = self.client.get(USER_LIST_URL)
+        res = self.client.patch(CHANGE_PASSWORD_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), get_user_model().objects.all().count())
+        self.assertIn('detail', res.data)
+
+        # Ensure new password works
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(payload['new_password']))
+
+    def test_change_password_wrong_old_password(self):
+        """Test changing password fails with wrong old password."""
+        payload = {
+            'old_password': 'wrongpassword',
+            'new_password': 'newsecurepassword123',
+        }
+
+        res = self.client.patch(CHANGE_PASSWORD_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('old_password', res.data)
+
+    def test_change_password_too_short(self):
+        """Test changing password fails if new password is too short."""
+        payload = {
+            'old_password': 'password',
+            'new_password': '123',
+        }
+
+        res = self.client.patch(CHANGE_PASSWORD_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('new_password', res.data)

@@ -1,18 +1,21 @@
-from rest_framework.test import APITestCase
+"""Test JWT authentication endpoints"""
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 
 User = get_user_model()
-TOKEN_URL = '/api/user/token/'
-REFRESH_URL = '/api/user/token/refresh/'
+TOKEN_URL = reverse('user:token_obtain_pair')
+REFRESH_URL = reverse('user:token_refresh')
+VERIFY_URL = reverse('user:token_verify')
 
 
 class JWTAuthTests(APITestCase):
-
+    """Test the JWT authentication endpoints"""
     def setUp(self):
-        # Використовуємо first_name та last_name замість name
+        """Set up the test case with a user"""
         self.user = User.objects.create_user(
             email='test@example.com',
             password='testpass123',
@@ -81,3 +84,30 @@ class JWTAuthTests(APITestCase):
         self.assertEqual(access_token['user_id'], self.user.id)
         self.assertEqual(access_token['email'], 'test@example.com')
         self.assertEqual(access_token['role'], 'student')
+
+    def test_verify_token_success(self):
+        """Test verifying a valid token"""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'testpass123',
+        }
+
+        res_obtain_tokens = self.client.post(TOKEN_URL, payload)
+        self.assertEqual(res_obtain_tokens.status_code, status.HTTP_200_OK)
+        self.assertIn('access', res_obtain_tokens.data)
+        self.assertIn('refresh', res_obtain_tokens.data)
+
+        res_verify_access = self.client.post(VERIFY_URL, {
+            'token': res_obtain_tokens.data['access']
+        })
+        res_verify_refresh = self.client.post(VERIFY_URL, {
+            'token': res_obtain_tokens.data['refresh']
+        })
+
+        self.assertEqual(res_verify_access.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_verify_refresh.status_code, status.HTTP_200_OK)
+
+    def test_verify_token_failure(self):
+        """Test verifying an invalid token"""
+        res = self.client.post(VERIFY_URL, {'token': 'invalid.token.here'})
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
