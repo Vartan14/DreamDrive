@@ -22,13 +22,17 @@ services:
 
   db:
     image: postgres:15-alpine
-    volumes:
-      - dev-db-data:/var/lib/postgresql/data   
+    container_name: auth_user_service-db-1
     environment:
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=devdb
+       POSTGRES_USER: devuser
+       POSTGRES_PASSWORD: 123
+       POSTGRES_DB: devdb
 
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
 
 volumes:
   dev-db-data:
+

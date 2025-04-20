@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt import authentication
 from rest_framework_simplejwt import tokens as jwt_tokens
 
-from user.serializers import UserSerializer, LogoutSerializer, ChangePasswordSerializer
+from user.serializers import UserSerializer, LogoutSerializer, ChangePasswordSerializer, AdminUserSerializer
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -81,5 +81,5 @@ class ChangePasswordView(generics.UpdateAPIView):
 class UserAdminViewSet(viewsets.ModelViewSet):
     """ViewSet for managing users, accessible only to admins."""
     queryset = get_user_model().objects.all()
-    serializer_class = UserSerializer
+    serializer_class = AdminUserSerializer
     permission_classes = [permissions.IsAdminUser]
