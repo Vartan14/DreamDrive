@@ -11,11 +11,8 @@ services:
     command: >
       sh -c "python manage.py wait_for_db &&            
              python manage.py runserver 0.0.0.0:8000"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=devdb
-      - DB_USER=devuser
-      - DB_PASSWORD=123
+    env_file:
+      - .env
     depends_on:
       - db  
 
@@ -23,15 +20,12 @@ services:
   db:
     image: postgres:15-alpine
     container_name: auth_user_service-db-1
-    environment:
-       POSTGRES_USER: devuser
-       POSTGRES_PASSWORD: 123
-       POSTGRES_DB: devdb
-
     ports:
       - "5432:5432"
     volumes:
       - dev-db-data:/var/lib/postgresql/data
+    env_file:
+      - .env
 
 volumes:
   dev-db-data:

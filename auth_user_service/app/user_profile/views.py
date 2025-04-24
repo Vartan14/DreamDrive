@@ -1,3 +1,16 @@
-from django.shortcuts import render
+"""Serializers for user profiles."""
+from rest_framework import viewsets, permissions
+from core.models import StudentProfile, TeacherProfile
+from .serializers import StudentProfileSerializer, TeacherProfileSerializer
 
-# Create your views here.
+
+class StudentProfileViewSet(viewsets.ModelViewSet):
+    queryset = StudentProfile.objects.all()
+    serializer_class = StudentProfileSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class TeacherProfileViewSet(viewsets.ModelViewSet):
+    queryset = TeacherProfile.objects.all()
+    serializer_class = TeacherProfileSerializer
+    permission_classes = [permissions.IsAdminUser]

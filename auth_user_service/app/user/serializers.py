@@ -42,49 +42,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Custom serializer to include additional data in JWT response."""
-
-    @classmethod
-    def get_token(cls, user):
-        """Generate a token for the user with additional claims."""
-        token = super().get_token(user)
-
-        # Add custom claims
-        token['email'] = user.email
-        token['role'] = user.role
-        return token
-
-
-class LogoutSerializer(serializers.Serializer):
-    """Serializer for user logout."""
-    refresh = serializers.CharField()
-
-
-class ChangePasswordSerializer(serializers.Serializer):
-    """Serializer for changing user password."""
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_old_password(self, value):
-        user = self.context['request'].user
-        if not user.check_password(value):
-            raise serializers.ValidationError("Wrong old password!.")
-        return value
-
-    def validate_new_password(self, value):
-        """Validate the new password."""
-        if len(value) < 8:
-            raise serializers.ValidationError("New password must be at least 8 characters.")
-        return value
-
-    def save(self, **kwargs):
-        user = self.context['request'].user
-        user.set_password(self.validated_data['new_password'])
-        user.save()
-        return user
-
-
 class AdminUserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
 
@@ -119,3 +76,17 @@ class AdminUserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom serializer to include additional data in JWT response."""
+
+    @classmethod
+    def get_token(cls, user):
+        """Generate a token for the user with additional claims."""
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+        return token

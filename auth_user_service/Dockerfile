@@ -27,6 +27,12 @@ RUN python -m venv /py && \
         --no-create-home \
         django-user
 
+# Встановлюємо tzdata і виставляємо часовий пояс для Alpine
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Europe/Kyiv /etc/localtime && \
+    echo "Europe/Kyiv" > /etc/timezone
+
+
 ENV PATH="/py/bin:$PATH"
 
 USER django-user
