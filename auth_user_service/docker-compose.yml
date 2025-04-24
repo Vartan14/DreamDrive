@@ -19,11 +19,14 @@ services:
 
   db:
     image: postgres:15-alpine
+    container_name: auth_user_service-db-1
+    ports:
+      - "5432:5432"
     volumes:
-      - dev-db-data:/var/lib/postgresql/data   
+      - dev-db-data:/var/lib/postgresql/data
     env_file:
       - .env
-  
 
 volumes:
   dev-db-data:
+

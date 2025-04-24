@@ -1,3 +1,8 @@
 Django==4.2
 djangorestframework==3.14.0
-psycopg2==2.9.6, <3.0.0
+psycopg2==2.9.6
+drf-spectacular==0.26.1
+djangorestframework-simplejwt[blacklist]==5.5.0
+dj-rest-auth[with-social]==6.0.0
+django-allauth==0.61.1
+django-jazzmin==2.6.1
