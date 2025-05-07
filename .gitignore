@@ -176,3 +176,4 @@ cython_debug/
 # Custom
 .github/
 .idea/
+node_modules/
