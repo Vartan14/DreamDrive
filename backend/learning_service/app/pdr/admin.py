@@ -40,8 +40,9 @@ class RoadVisualGroupAdmin(admin.ModelAdmin):
     """
     Admin interface for RoadVisualGroup model.
     """
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ("number","type", "title")
+    search_fields = ("number","type", "title")
+    ordering = ("type", "number")
 
 
 @admin.register(RoadVisualElement)
@@ -50,6 +51,6 @@ class RoadVisualElementAdmin(admin.ModelAdmin):
     Admin interface configuration for RoadVisualElement model.
     Displays element type, group name, code, and a short description.
     """
-    list_display = ("element_type", "group", "element_id", "name")
+    list_display =  ("group", "element_id", "name")
     search_fields = ("element_id", "name")
-    list_filter = ("element_type", "group")
+    list_filter = ("group",)

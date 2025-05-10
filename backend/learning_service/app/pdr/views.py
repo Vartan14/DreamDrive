@@ -16,6 +16,7 @@ class RoadVisualGroupViewSet(viewsets.ModelViewSet):
     """
     queryset = RoadVisualGroup.objects.all()
     serializer_class = RoadVisualGroupSerializer
+    permission_classes = [DefaultRolePermission]
 
 
 class RoadVisualElementViewSet(viewsets.ModelViewSet):
@@ -24,6 +25,7 @@ class RoadVisualElementViewSet(viewsets.ModelViewSet):
     """
     queryset = RoadVisualElement.objects.all()
     serializer_class = RoadVisualElementSerializer
+    permission_classes = [DefaultRolePermission]
 
 
 class RuleSectionViewSet(viewsets.ModelViewSet):
@@ -32,7 +34,7 @@ class RuleSectionViewSet(viewsets.ModelViewSet):
     """
     queryset = RuleSection.objects.all()
     serializer_class = RuleSectionSerializer
-    permission_classes = [RolePermission.allow_roles('admin', 'teacher')]
+    permission_classes = [DefaultRolePermission]
 
 
 class TrafficRuleViewSet(viewsets.ModelViewSet):

@@ -177,3 +177,4 @@ cython_debug/
 .github/
 .idea/
 node_modules/
+backend/learning_service/app/data/
