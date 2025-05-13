@@ -26,7 +26,7 @@ class CustomJWTAuthentication(BaseAuthentication):
         except jwt.InvalidTokenError:
             raise AuthenticationFailed("Invalid token")
 
-        # Mock user object from payload (role, id, etc.)
+        # Create temp request.user
         user = SimpleNamespace(
             id=payload.get('user_id'),
             email=payload.get('email'),
@@ -34,4 +34,4 @@ class CustomJWTAuthentication(BaseAuthentication):
             is_authenticated=True
         )
 
-        return (user, payload)
+        return user, payload

@@ -11,7 +11,7 @@ class AnswerInline(admin.TabularInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('ticket_number', 'question_number', 'text_short', 'has_image', 'rule')
+    list_display = ('id','question_number','ticket_number', 'text_short', 'has_image', 'rule')
     list_filter = ('ticket_number',)
     search_fields = ('question_number', 'text', 'reply_text')
     inlines = [AnswerInline]
