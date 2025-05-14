@@ -29,6 +29,7 @@ class CustomJWTAuthentication(BaseAuthentication):
         # Create temp request.user
         user = SimpleNamespace(
             id=payload.get('user_id'),
+            group_id=payload.get('group_id'),
             email=payload.get('email'),
             role=payload.get('role'),
             is_authenticated=True

@@ -1,1 +1,1 @@
-import core.schema_extensions  # <-- ОБОВ’ЯЗКОВО!
+import core.schema_extensions
