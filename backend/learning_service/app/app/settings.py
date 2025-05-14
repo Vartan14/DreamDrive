@@ -157,6 +157,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
             'core.views.CustomJWTAuthentication',
     ),
+    #'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 JAZZMIN_SETTINGS = {

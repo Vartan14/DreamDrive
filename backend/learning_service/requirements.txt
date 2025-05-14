@@ -5,3 +5,4 @@ drf-spectacular==0.26.1
 django-jazzmin==2.6.1
 PyJWT==2.10.0
 pillow==11.2.1
+django-filter==24.3
