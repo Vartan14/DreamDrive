@@ -57,6 +57,35 @@ services:
     env_file:
       - ./backend/learning_service/.env
 
+  schedule_service_app:
+    container_name: schedule_service-app-1
+    build:
+      context: ./backend/schedule_service
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./backend/schedule_service/app:/app
+    command: >
+      sh -c "python manage.py wait_for_db &&
+      python manage.py runserver 0.0.0.0:8002"
+    env_file:
+      - ./backend/schedule_service/.env
+    depends_on:
+      - schedule_service_db
+
+  schedule_service_db:
+    image: postgres:15-alpine
+    container_name: schedule_service-db-1
+    ports:
+      - "5434:5434"
+    volumes:
+      - ss-db-data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/schedule_service/.env
+
 #  frontend:
 #    build:
 #      context: ./frontend
@@ -74,5 +103,6 @@ services:
 volumes:
   dev-db-data:
   ls-db-data:
+  ss-db-data:
 
 

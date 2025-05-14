@@ -21,3 +21,5 @@ build
 Dockerfile
 npm-debug.log
 
+# Service Data
+backend/learning_service/app/data/

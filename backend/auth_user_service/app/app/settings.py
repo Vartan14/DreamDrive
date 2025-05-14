@@ -170,8 +170,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 JAZZMIN_SETTINGS = {
     "site_title": "DreamDrive Admin",
-    "site_header": "DreamDrive",
-    "site_brand": "DreamDrive",
+    "site_header": "Auth User Service",
+    "site_brand": "Auth User Service",
     "welcome_sign": "Ласкаво просимо до адмінки DreamDrive!",
     "copyright": "DreamDrive",
     "show_sidebar": True,
