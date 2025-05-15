@@ -5,7 +5,7 @@ from django.db import models
 
 class TheoryLesson(models.Model):
     """Theoretical lessons. Instructors add students"""
-
+    title = models.CharField(max_length=100, default='Theoretical lesson')
     start_time = models.DateTimeField()
     duration = models.DurationField(default=timedelta(minutes=60))
 
@@ -23,6 +23,7 @@ class TheoryLesson(models.Model):
 
 class PracticeLesson(models.Model):
     """Practical lessons with time slots that students can book."""
+    title = models.CharField(max_length=100, default='Practical lesson')
     status = models.CharField(max_length=10, choices=[
         ('available', 'Available'),
         ('booked', 'Booked'),
