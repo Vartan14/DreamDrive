@@ -1,4 +1,6 @@
 import random
+
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +12,7 @@ from tickets.models import Ticket, Question, Answer
 from .models import TicketTestSession, TicketTestAnswer
 
 
-
+@extend_schema(tags=["Testing"])
 class StartTicketTestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -62,6 +64,7 @@ class StartTicketTestView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["Testing"])
 class SubmitTicketTestView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -166,6 +166,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Auth User Service API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 JAZZMIN_SETTINGS = {

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
@@ -9,6 +10,8 @@ from .serializers import QuestionSerializer, AnswerSerializer, TicketSerializer,
 class QuestionPagination(PageNumberPagination):
     page_size = 20
 
+
+@extend_schema(tags=["Tickets / Questions"])
 class QuestionViewSet(viewsets.ModelViewSet):
     """
     Question CRUD + GET request with section=<id> param
@@ -34,18 +37,20 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@extend_schema(tags=["Tickets / Answers"])
 class AnswerViewSet(viewsets.ModelViewSet):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     permission_classes = [RolePermission.allow_roles('admin', 'teacher')]
 
 
+@extend_schema(tags=["Tickets"])
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [RolePermission.allow_roles('admin', 'teacher')]
 
-
+@extend_schema(tags=["Tickets / Ticket Questions"])
 class TicketQuestionViewSet(viewsets.ModelViewSet):
     queryset = TicketQuestion.objects.all()
     serializer_class = TicketQuestionSerializer

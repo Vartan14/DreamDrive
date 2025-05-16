@@ -58,8 +58,6 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Filial)
-admin.site.register(models.DrivingCategory)
 admin.site.register(models.Group)
 admin.site.register(models.StudentProfile)
 admin.site.register(models.TeacherProfile)

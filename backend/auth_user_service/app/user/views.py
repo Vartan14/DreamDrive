@@ -4,6 +4,7 @@ Views for the User API
 from django.contrib.auth import get_user_model
 from rest_framework import generics, viewsets, permissions
 from rest_framework_simplejwt import authentication
+from drf_spectacular.utils import extend_schema
 
 from user.serializers import UserSerializer, AdminUserSerializer
 
@@ -14,6 +15,7 @@ class UserCreateView(generics.CreateAPIView):
     permission_classes = []
 
 
+@extend_schema(tags=["User"])
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """View to manage the authenticated user."""
     serializer_class = UserSerializer
@@ -25,6 +27,7 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
+@extend_schema(tags=["User"])
 class UserAdminViewSet(viewsets.ModelViewSet):
     """ViewSet for managing users, accessible only to admins."""
     queryset = get_user_model().objects.all()

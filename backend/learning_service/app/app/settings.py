@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+USE_X_FORWARDED_HOST = True
 
 # Application definition
 
@@ -44,7 +44,6 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_spectacular',
-    # 'rest_framework_simplejwt',
 
     'core',
     'pdr',
@@ -172,3 +171,4 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
     "show_ui_builder": True,
 }
+

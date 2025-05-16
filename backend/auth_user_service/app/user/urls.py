@@ -3,12 +3,16 @@ URL mappings for the user API
 """
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
-
 from user.views import UserCreateView, ManageUserView
-from user.router import urlpatterns as user_admin_urls
+
+from rest_framework.routers import DefaultRouter
+from user.views import UserAdminViewSet
+
+router = DefaultRouter()
+router.register(r'', UserAdminViewSet, basename='admin-users')
 
 
-app_name = 'user'
+app_name = 'users'
 urlpatterns = [
     # Authentication URLs
     #path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -18,9 +22,9 @@ urlpatterns = [
     #path('logout/', LogoutView.as_view(), name='logout'),
     #path('change-password/', ChangePasswordView.as_view(), name='change_password'),
 
+    # User management URLs
     path('me/', ManageUserView.as_view(), name='me'),
 
-
-    # Include the user admin URLs
-    path('', include(user_admin_urls))
+    # Admin CRUD URLs for users
+    path('', include(router.urls))
 ]

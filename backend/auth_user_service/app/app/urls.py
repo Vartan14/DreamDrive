@@ -10,11 +10,13 @@ from app import settings
 from accounts.views import GoogleLogin, GoogleLoginCallback, LoginPage
 
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("login/", LoginPage.as_view(), name="login"),
-    path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
 
     # Auth Routes
     path('api/v1/auth/', include("dj_rest_auth.urls")),
@@ -31,9 +33,9 @@ urlpatterns = [
     path("api/v1/auth/google/callback/",GoogleLoginCallback.as_view(), name="google_login_callback"),
 
     # App Routes
-    path('api/v1/user/', include('user.urls')),
-    path('api/v1/group/', include('group.urls')),
-    path('api/v1/profile/', include('user_profile.urls')),
+    path('api/v1/users/', include('user.urls')),
+    path('api/v1/groups/', include('group.urls')),
+    path('api/v1/profiles/', include('user_profile.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

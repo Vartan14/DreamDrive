@@ -1,13 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import GroupViewSet, FilialViewSet, DrivingCategoryViewSet
+from .views import GroupViewSet
 
 
-app_name = 'group'
+app_name = 'groups'
 router = DefaultRouter()
-router.register(r'groups', GroupViewSet, basename='group')
-router.register(r'filials', FilialViewSet, basename='filial')
-router.register(r'driving-categories', DrivingCategoryViewSet, basename='driving-category')
+router.register(r'', GroupViewSet, basename='groups')
 
 
 urlpatterns = [

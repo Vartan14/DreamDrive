@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 
 from core.permissions import RolePermission, DefaultRolePermission
@@ -9,7 +10,7 @@ from .serializers import (
     RoadVisualGroupSerializer,
 )
 
-
+@extend_schema(tags=["PDR / Sing And Marking Groups"])
 class RoadVisualGroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing road visual groups.
@@ -18,7 +19,7 @@ class RoadVisualGroupViewSet(viewsets.ModelViewSet):
     serializer_class = RoadVisualGroupSerializer
     permission_classes = [DefaultRolePermission]
 
-
+@extend_schema(tags=["PDR / Signs and Markings"])
 class RoadVisualElementViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing road visual elements.
@@ -27,7 +28,7 @@ class RoadVisualElementViewSet(viewsets.ModelViewSet):
     serializer_class = RoadVisualElementSerializer
     permission_classes = [DefaultRolePermission]
 
-
+@extend_schema(tags=["PDR / Rule Sections"])
 class RuleSectionViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing rule sections.
@@ -37,6 +38,7 @@ class RuleSectionViewSet(viewsets.ModelViewSet):
     permission_classes = [DefaultRolePermission]
 
 
+@extend_schema(tags=["PDR / Traffic Rules"])
 class TrafficRuleViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing traffic rules.

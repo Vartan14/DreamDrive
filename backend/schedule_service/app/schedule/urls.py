@@ -6,13 +6,16 @@ from .views import (TheoryLessonViewSet,
                     ReadOnlyTheoryLessonViewSet,
                     ReadOnlyPracticeLessonViewSet,
                     ListAvailablePracticeLessons,
-                    BookPracticeLessonView, InstructorCalendarEvents, InstructorTimelineView, AdminScheduleView)
+                    BookPracticeLessonView,
+                    InstructorCalendarEvents,
+                    InstructorTimelineView,
+                    AdminScheduleView)
 
 
 theory_router = DefaultRouter()
 practice_router = DefaultRouter()
-theory_router.register(r'instructor/theory-lessons', TheoryLessonViewSet, basename='theory')
-practice_router.register(r'instructor/practice-lessons', PracticeLessonViewSet, basename='practice')
+theory_router.register(r'theory-lessons', TheoryLessonViewSet, basename='theory')
+practice_router.register(r'practice-lessons', PracticeLessonViewSet, basename='practice')
 
 
 urlpatterns = [
@@ -27,12 +30,11 @@ urlpatterns = [
     path('student/book-practice-lesson/<int:pk>/', BookPracticeLessonView.as_view()),  # PUT request
 
     # Instructor
-    path('', include(theory_router.urls)),
-    path('', include(practice_router.urls)),
+    path('teacher/', include(theory_router.urls)),
+    path('teacher/', include(practice_router.urls)),
 
-    path('instructor/calendar-events/', InstructorCalendarEvents.as_view()),
-    path('instructor/lesson-timeline/', InstructorTimelineView.as_view()),
-    path('admin/schedule/', AdminScheduleView.as_view()),
-
+    path('teacher/calendar/', InstructorCalendarEvents.as_view()),
+    path('teacher/lesson-timeline/', InstructorTimelineView.as_view()),
+    path('admin/calendar/', AdminScheduleView.as_view()),
 
 ]

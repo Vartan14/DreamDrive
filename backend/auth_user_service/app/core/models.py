@@ -86,23 +86,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.first_name} {self.last_name}"
 
 
-class Filial(models.Model):
-    """Represents a branch of the driving school."""
-    city = models.CharField(max_length=100)
-    address = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.city} - {self.address}"
-
-
-class DrivingCategory(models.Model):
-    """Driving categories (e.g., A, B, C)."""
-    name = models.CharField(max_length=5, unique=True)
-
-    def __str__(self):
-        return self.name
-
 
 class TeacherProfile(models.Model):
     """Profile for teacher or instructor users."""
@@ -133,11 +116,7 @@ class Group(models.Model):
         PRACTICE = 'practice', 'Practice'
 
     name = models.CharField(max_length=100)
-    driving_category = models.ForeignKey(
-        DrivingCategory,
-        on_delete=models.CASCADE,
-        related_name='groups'
-    )
+    driving_category = models.CharField(max_length=5)
     teacher = models.ForeignKey(
         TeacherProfile,
         on_delete=models.CASCADE,
@@ -145,11 +124,8 @@ class Group(models.Model):
         null=True,
         blank=True
     )
-    filial = models.ForeignKey(
-        Filial,
-        on_delete=models.CASCADE,
-        related_name='groups'
-    )
+    # ForeignKey in Public Info Service
+    filial_id = models.PositiveIntegerField(null=True, blank=True)
     type = models.CharField(
         max_length=20,
         choices=GroupType.choices

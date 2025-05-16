@@ -86,6 +86,26 @@ services:
     env_file:
       - ./backend/schedule_service/.env
 
+  api_gateway:
+    container_name: api_gateway-app-1
+    build:
+      context: ./backend/api_gateway
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./backend/api_gateway/app:/app
+    env_file:
+      - ./backend/api_gateway/.env
+    command: >
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8005 --reload"
+    depends_on:
+      - auth_user_service_app
+      - learning_service_app
+      - schedule_service_app
+
 #  frontend:
 #    build:
 #      context: ./frontend

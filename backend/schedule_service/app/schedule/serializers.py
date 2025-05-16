@@ -10,9 +10,6 @@ class TheoryLessonSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('instructor_id', 'created_at')
 
-    def validate(self, data):
-        return data
-
 
 class PracticeLessonSerializer(serializers.ModelSerializer):
     """Practice Lesson serializer"""
@@ -22,8 +19,9 @@ class PracticeLessonSerializer(serializers.ModelSerializer):
 
 
 class LessonCalendarSerializer(serializers.Serializer):
+    """Lesson Calendar serializer"""
     id = serializers.IntegerField()
-    type = serializers.CharField()  # 'theory'/'practice'
+    type = serializers.SerializerMethodField()
     start_time = serializers.DateTimeField()
     duration = serializers.DurationField()
     instructor_id = serializers.IntegerField()
@@ -33,6 +31,13 @@ class LessonCalendarSerializer(serializers.Serializer):
     status = serializers.CharField(allow_blank=True, required=False)
     is_online = serializers.BooleanField(required=False)
     car = serializers.CharField(allow_blank=True, required=False)
+
+    def get_type(self, instance):
+        if isinstance(instance, TheoryLesson):
+            return 'theory'
+        elif isinstance(instance, PracticeLesson):
+            return 'practice'
+        return None
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -62,11 +67,18 @@ class LessonCalendarSerializer(serializers.Serializer):
 
 class LessonTimelineSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    type = serializers.CharField()
+    type = serializers.SerializerMethodField()
     start_time = serializers.DateTimeField()
     duration = serializers.DurationField()
     instructor_id = serializers.IntegerField()
     description = serializers.SerializerMethodField()
+
+    def get_type(self, instance):
+        if isinstance(instance, TheoryLesson):
+            return 'theory'
+        elif isinstance(instance, PracticeLesson):
+            return 'practice'
+        return None
 
     def get_description(self, obj):
         if isinstance(obj, TheoryLesson):

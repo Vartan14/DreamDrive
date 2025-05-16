@@ -5,6 +5,24 @@ from rest_framework.exceptions import AuthenticationFailed
 from types import SimpleNamespace
 
 
+class HeaderAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        user_id = request.headers.get("X-User-Id")
+        role = request.headers.get("X-User-Role")
+        email = request.headers.get("X-User-Email")
+
+        if not user_id or not role or not email:
+            return None
+
+        user = SimpleNamespace(
+            id=user_id,
+            role=role,
+            email=email,
+            is_authenticated=True
+        )
+
+        return (user, None)
+
 class CustomJWTAuthentication(BaseAuthentication):
     """
     Custom authentication that decodes the JWT and attaches user info

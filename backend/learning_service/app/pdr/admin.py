@@ -11,7 +11,7 @@ class RuleSectionAdmin(admin.ModelAdmin):
     Admin interface configuration for RuleSection model.
     Displays section number and title, with search and ordering.
     """
-    list_display = ("number", "title")
+    list_display = ("id", "number", "title")
     search_fields = ("number", "title")
     ordering = ("number",)
 
