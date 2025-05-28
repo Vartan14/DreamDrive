@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from routers.auth_user_service import auth, profiles, users, groups
 from routers.learning_service import pdr, tickets, testing
 from routers.shedule_service import admin_schedule, teacher_schedule, student_schedule
@@ -6,6 +9,15 @@ app = FastAPI(
     title="Gateway API",
     description="API Gateway for DreamDrive Microservices",
     version="1.0.0"
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[ "http://localhost:8080",],
+    allow_credentials=True,  # Дозволити передачу cookies
+    allow_methods=["*"],  # Дозволити всі методи (GET, POST, PUT, DELETE тощо)
+    allow_headers=["*"],  # Дозволити всі заголовки
 )
 
 """

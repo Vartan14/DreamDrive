@@ -64,6 +64,14 @@ async def password_reset(request: Request):
     headers["Host"] = "localhost"
     return await make_request("POST", url, headers, body)
 
+@router.post("/password/reset/confirm")
+async def password_reset_confirm(request: Request):
+    body = await request.body()
+    url = f"{settings.AUTH_SERVICE_URL}/api/v1/auth/password/reset/confirm/"
+    headers = {key: value for key, value in request.headers.items() if key.lower() != "host"}
+    headers["Host"] = "localhost"
+    return await make_request("POST", url, headers, body)
+
 
 @router.post("/password/change")
 async def password_change(request: Request, user=Depends(get_user_info_from_jwt)):

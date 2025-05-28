@@ -25,7 +25,7 @@ urlpatterns = [
     # Password Reset Endpoints
     path('api/v1/auth/password/reset/', dj_rest_auth_views.PasswordResetView.as_view(), name='password_reset'),
 
-    path('api/v1/auth/password/reset/confirm/<slug:uidb64>/<slug:token>/', dj_rest_auth_views.PasswordResetConfirmView.as_view(),
+    path('api/v1/auth/password/reset/confirm/', dj_rest_auth_views.PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
     path('accounts/', include('allauth.urls')),
 

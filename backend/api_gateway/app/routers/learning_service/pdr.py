@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request
-import httpx
 from fastapi.params import Depends
 
 from config import settings

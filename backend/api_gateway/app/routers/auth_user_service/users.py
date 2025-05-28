@@ -20,7 +20,7 @@ async def proxy_to_users(request: Request, path: str, user=Depends(get_user_info
         async with httpx.AsyncClient() as client:
             response = await client.request(
                 method=request.method,
-                url=f"{settings.AUTH_SERVICE_URL}/api/v1/{app_name}/{path}/",
+                url=f"{settings.AUTH_SERVICE_URL}/api/v1/{app_name}/{path}",
                 headers=prepare_forward_headers(request, user),
                 content=body
             )

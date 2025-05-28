@@ -29,7 +29,7 @@ class RuleSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RuleSection
-        fields = '__all__'
+        fields = ['number', 'title']
 
 
 class TrafficRuleSerializer(serializers.ModelSerializer):
@@ -39,4 +39,4 @@ class TrafficRuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrafficRule
-        fields = '__all__'
+        fields = ['rule_id', 'section', 'text']

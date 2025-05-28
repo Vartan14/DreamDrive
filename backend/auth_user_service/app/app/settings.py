@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',  # <- Support Login with Google
     'dj_rest_auth.registration',
     'drf_spectacular',
+
+    'accounts',
     'core',
     'user',
     'user_profile',
@@ -160,7 +162,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'user.User'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -172,7 +174,9 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+#FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
+FRONTEND_URL = "http://localhost:8080"
+
 
 JAZZMIN_SETTINGS = {
     "site_title": "DreamDrive Admin",
@@ -209,9 +213,7 @@ REST_AUTH = {
     'REGISTER_SERIALIZER': 'user.serializers.MyRegisterSerializer',
     'USE_JWT': True,
     'TOKEN_MODEL': None,
-    'JWT_AUTH_HTTPONLY': False,  # Makes sure refresh token is sent
-
-    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}/',
+    'JWT_AUTH_HTTPONLY': False,
     'PASSWORD_RESET_SERIALIZER': 'user.serializers.CustomPasswordResetSerializer',
 }
 
@@ -243,7 +245,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[DreamDrive]'
 ACCOUNT_EMAIL_CONFIRMATION_HMAC = 'Confirmation code'
-ACCOUNT_EMAIL_CONFIRMATION_TEMPLATE = 'emails/confirmation.html'
+
 
 # Google OAuth
 GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")

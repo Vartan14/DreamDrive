@@ -1,7 +1,7 @@
 """Serializers for user profiles."""
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
-from core.models import StudentProfile, TeacherProfile
+from user_profile.models import StudentProfile, TeacherProfile
 from .serializers import StudentProfileSerializer, TeacherProfileSerializer
 
 

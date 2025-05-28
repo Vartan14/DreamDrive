@@ -2,7 +2,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 
-from core.models import Group
+from user_profile.models import Group
 from .serializers import GroupSerializer
 
 
