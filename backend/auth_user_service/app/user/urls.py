@@ -3,7 +3,7 @@ URL mappings for the user API
 """
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
-from user.views import UserCreateView, ManageUserView
+from user.views import UserCreateView, ManageUserView, UpdateStudentPaymentStatusView
 
 from rest_framework.routers import DefaultRouter
 from user.views import UserAdminViewSet
@@ -24,6 +24,7 @@ urlpatterns = [
 
     # User management URLs
     path('me/', ManageUserView.as_view(), name='me'),
+    path('update-payment-status/', UpdateStudentPaymentStatusView.as_view(), name='update_payment_status'),
 
     # Admin CRUD URLs for users
     path('', include(router.urls))

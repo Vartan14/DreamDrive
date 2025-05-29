@@ -7,8 +7,10 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import PasswordResetSerializer
-
 from user.forms import CustomAllAuthPasswordResetForm
+from user_profile.models import StudentProfile, Group
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -116,3 +118,24 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
     @property
     def password_reset_form_class(self):
         return CustomAllAuthPasswordResetForm
+
+
+
+class StudentPaymentUpdateSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+    def validate_user_id(self, value):
+        if not User.objects.filter(id=value).exists():
+            raise serializers.ValidationError("User not found")
+        return value
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        user = User.objects.get(id=validated_data['user_id'])
+        user.is_paid = True
+        user.save()
+
+        StudentProfile.objects.get_or_create(user=user)
+        return user

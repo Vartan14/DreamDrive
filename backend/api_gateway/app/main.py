@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from routers.auth_user_service import auth, profiles, users, groups
+from routers.auth_user_service import auth, profiles, users, groups, payment_callback
 from routers.learning_service import pdr, tickets, testing
 from routers.shedule_service import admin_schedule, teacher_schedule, student_schedule
+from routers.payment_service import payments
 app = FastAPI(
     title="Gateway API",
     description="API Gateway for DreamDrive Microservices",
@@ -39,6 +40,13 @@ app.include_router(users.router, prefix="/api/v1/users")
 
 app.include_router(groups.router, prefix="/api/v1/groups")
 
+app.include_router(payment_callback.router, prefix="/api/v1/payment-callback")
+
+
+"""
+Payment Service
+"""
+app.include_router(payments.router, prefix="/api/v1/payments")
 
 """
 Learning Service

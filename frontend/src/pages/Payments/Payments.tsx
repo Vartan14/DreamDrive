@@ -122,6 +122,17 @@ const Payments = () => {
     }, 1500);
   };
 
+  // Додаємо функцію для переходу на форму оплати з параметрами
+  const handleSelectPlan = (plan: { title: string; price: string }) => {
+    // Передаємо дані через state (можна через query params, якщо потрібно)
+    navigate('/payments/pay', {
+      state: {
+        amount: Number(plan.price.replace(/\D/g, "")), // Витягуємо число з ціни
+        description: plan.title,
+      },
+    });
+  };
+
   return (
     <PageLayout>
       <PageHeader 
@@ -219,11 +230,11 @@ const Payments = () => {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button 
+                  <Button
                     className={`w-full ${plan.popular ? 'bg-lider-red hover:bg-red-700' : ''}`}
-                    asChild
+                    onClick={() => handleSelectPlan(plan)}
                   >
-                    <a href={plan.ctaLink}>Обрати</a>
+                    Обрати
                   </Button>
                 </CardFooter>
               </Card>

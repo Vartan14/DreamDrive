@@ -22,7 +22,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import LearningMaterials from "./pages/Instructor/LearningMaterials";
 import Tests from "./pages/Tests/Tests";
-import Payments from "./pages/Payments";
+import Payments from "./pages/Payments/Payments";
 import Schedule from "./pages/Schedule/Schedule";
 
 // New Instructor Pages
@@ -54,6 +54,8 @@ import TestResultDetails from "./pages/Tests/TestResultDetails";
 // Lessons Management
 import Lessons from "./pages/Deprecated/Lessons";
 import AuthProvider from "./providers/AuthProvider";
+import PaymentForm from "./pages/Payments/PaymentForm";
+import PaymentResult from "./pages/Payments/PaymentResult";
 
 const queryClient = new QueryClient();
 
@@ -83,8 +85,12 @@ const App = () => (
             {/* Protected Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
-           
 
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/payments/pay" element={<PaymentForm />} />
+            <Route path="/payments/result" element={<PaymentResult />} />
+
+            
             {/* Tests Routes */}
             <Route path="/tests" element={<Tests />} />
             <Route path="/tests/random" element={<TestTaking />} />
@@ -97,10 +103,9 @@ const App = () => (
             <Route path="/tests/history" element={<TestHistory />} />
 
             <Route path="/materials" element={<Materials />} />
-            <Route path="/payments" element={<Payments />} />
+
             <Route path="/schedule" element={<Schedule />} />
 
-            
             {/* Instructor Routes */}
             <Route path="/instructor/groups" element={<InstructorGroups />} />
             <Route path="/instructor/students/:studentId" element={<InstructorStudentProgress />} />

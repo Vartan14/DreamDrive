@@ -4,10 +4,12 @@ from fastapi.params import Depends
 
 from config import settings
 from utils.auth import get_user_info_from_jwt, prepare_forward_headers
-
+from utils.http_client import make_request
 
 app_name = 'users'
 router = APIRouter(tags=["Users"])
+
+
 
 
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

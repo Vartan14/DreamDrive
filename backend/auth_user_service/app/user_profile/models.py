@@ -66,7 +66,7 @@ class StudentProfile(models.Model):
     """Profile for student users."""
     user = models.OneToOneField(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='student_profile'
     )
     group = models.ForeignKey(
@@ -87,3 +87,11 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+    def get_email(self):
+        """Return the email of the associated user."""
+        return self.user.email if self.user else None
+
+    def get_full_name(self):
+        """Return the full name of the associated user."""
+        return self.user.get_full_name() if self.user else None

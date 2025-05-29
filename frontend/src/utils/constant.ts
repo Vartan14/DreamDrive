@@ -9,6 +9,9 @@ export const REFRESH_URL = 'auth/token/refresh/';
 export const LOGOUT_URL = 'auth/logout/';
 export const PASSWORD_RESET_URL = 'auth/password/reset/';
 
+// Pyments URLs
+export const PAYMENT_URL = 'payments/create-payment/';
+export const PAYMENT_STATUS_URL = 'payments/status/';
 
 // User URLs
 export const USER_URL = 'users/me/';

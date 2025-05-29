@@ -272,3 +272,5 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+PAYMENT_API_KEY = 'django-insecure--*+x1us_e0j+q++b&*g6$jna6of%n1k58c@zka)vzcp+ph48mg'
