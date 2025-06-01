@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { resetPassword } from '@/utils/auth';
+import { resetPassword } from '@/utils/requests/auth';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");

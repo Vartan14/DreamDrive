@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { createPayment } from "../../utils/payments";
+import { createPayment } from "../../utils/requests/payments";
 
 /**
  * PaymentForm redirects user to LiqPay after payment data is received.

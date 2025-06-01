@@ -34,3 +34,12 @@ async def payment_status(request: Request):
     headers = {key: value for key, value in request.headers.items() if key.lower() != "host"}
     headers["Host"] = "localhost"
     return await make_request("GET", url, headers, body)
+
+
+@router.get("/payment-history")
+async def payment_status(request: Request):
+    body = await request.body()
+    url = f"{settings.PAYMENT_SERVICE_URL}/api/v1/payment-history/"
+    headers = {key: value for key, value in request.headers.items() if key.lower() != "host"}
+    headers["Host"] = "localhost"
+    return await make_request("GET", url, headers, body)

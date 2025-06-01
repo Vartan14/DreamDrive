@@ -5,7 +5,7 @@ import uuid
 
 import requests
 from drf_spectacular.utils import extend_schema
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -142,3 +142,17 @@ class PaymentStatusView(RetrieveAPIView):
 
         serializer = PaymentStatusSerializer(payment)
         return Response(serializer.data)
+
+
+class PaymentHistoryView(ListAPIView):
+    permission_classes = [RolePermission.allow_roles('student')]
+
+    def get(self, request):
+        user_id = request.user.id
+        payments = Payment.objects.filter(user_id=user_id).order_by('-created_at')
+
+        if not payments:
+            return Response({"message": "No payment history found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PaymentStatusSerializer(payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

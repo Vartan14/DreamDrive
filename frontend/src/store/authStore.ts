@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { mountStoreDevtool } from 'simple-zustand-devtools';
-import { fetchMe } from '@/utils/users';
+import { fetchMe } from '@/utils/requests/users';
 import { co } from 'node_modules/@fullcalendar/core/internal-common';
-import { setUser } from '@/utils/auth';
-import { UserData } from '@/types/user';
+import { setUser } from '@/utils/requests/auth';
+import { UserData } from '@/types/userInterface';
 
 
 

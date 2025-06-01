@@ -103,7 +103,6 @@ const App = () => (
             <Route path="/tests/history" element={<TestHistory />} />
 
             <Route path="/materials" element={<Materials />} />
-
             <Route path="/schedule" element={<Schedule />} />
 
             {/* Instructor Routes */}

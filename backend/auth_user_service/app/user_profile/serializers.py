@@ -7,11 +7,24 @@ from .models import StudentProfile, TeacherProfile, Group
 
 
 class StudentProfileSerializer(serializers.ModelSerializer):
-    student_id = serializers.IntegerField(source='id', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    type = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentProfile
-        fields = ['student_id', 'group_id']
+        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'progress', 'type']
+
+
+    def get_type(self, obj):
+        student_type = obj.type
+        if student_type == 'theory':
+            return 'Теорія'
+        elif student_type == 'practice':
+            return 'Практика'
+        else:
+            return 'Теорія та практика'
 
 
     def validate_user(self, value):
@@ -21,12 +34,14 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='user.id', read_only=True)
     teacher_id = serializers.IntegerField(source='id', read_only=True)
     groups = serializers.SerializerMethodField()
+    name = serializers.CharField(source='get_full_name', read_only=True)
 
     class Meta:
         model = TeacherProfile
-        fields = ('teacher_id', 'type') + ('groups',)
+        fields = ('teacher_id', 'id', 'name', 'type') + ('groups',)
 
 
     def get_groups(self, obj):
@@ -42,7 +57,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
 
 class UserWithProfileSerializer(UserSerializer):
     profile = serializers.SerializerMethodField()
-
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ('profile',)

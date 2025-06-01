@@ -22,12 +22,12 @@ import {
 } from 'lucide-react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
-// Mock student data
+
 const mockStudentData = {
   id: '1',
   name: 'John Student',
   email: 'john@example.com',
-  profilePicture: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
+  profilePicture: '',
   progress: {
     overall: 65,
     theory: 80,

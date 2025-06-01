@@ -4,18 +4,52 @@ from .models import TheoryLesson, PracticeLesson
 
 class TheoryLessonSerializer(serializers.ModelSerializer):
     """Theory Lesson serializer"""
+    end_time = serializers.SerializerMethodField()
 
     class Meta:
         model = TheoryLesson
-        fields = '__all__'
+        fields = ['id', 'title','start_time', 'end_time', 'duration', 'filial_id', 'instructor_id', 'group_id', 'is_online']
         read_only_fields = ('instructor_id', 'created_at')
+
+    def get_end_time(self, obj):
+        """Calculate end time based on start time and duration."""
+        if obj.start_time and obj.duration:
+            return obj.start_time + obj.duration
+        return None
 
 
 class PracticeLessonSerializer(serializers.ModelSerializer):
     """Practice Lesson serializer"""
+    end_time = serializers.SerializerMethodField()
+
     class Meta:
         model = PracticeLesson
-        fields = ['id', 'start_time', 'duration', 'filial_id', 'instructor_id', 'status', 'location', 'car', 'student_id']
+        fields = ['id', 'title','start_time','end_time', 'duration', 'filial_id', 'instructor_id', 'status', 'location', 'car', 'student_id']
+        read_only_fields = ('instructor_id', 'created_at')
+
+    def get_end_time(self, obj):
+        """Calculate end time based on start time and duration."""
+        if obj.start_time and obj.duration:
+            return obj.start_time + obj.duration
+        return None
+
+class LessonTimelineSerializer(serializers.Serializer):
+    type = serializers.SerializerMethodField()
+    data = serializers.SerializerMethodField()
+
+    def get_type(self, obj):
+        if isinstance(obj, TheoryLesson):
+            return 'theory'
+        elif isinstance(obj, PracticeLesson):
+            return 'practical'
+        return None
+
+    def get_data(self, obj):
+        if isinstance(obj, TheoryLesson):
+            return TheoryLessonSerializer(obj).data
+        elif isinstance(obj, PracticeLesson):
+            return PracticeLessonSerializer(obj).data
+        return {}
 
 
 class LessonCalendarSerializer(serializers.Serializer):
@@ -65,30 +99,4 @@ class LessonCalendarSerializer(serializers.Serializer):
         return rep
 
 
-class LessonTimelineSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    type = serializers.SerializerMethodField()
-    start_time = serializers.DateTimeField()
-    duration = serializers.DurationField()
-    instructor_id = serializers.IntegerField()
-    description = serializers.SerializerMethodField()
 
-    def get_type(self, instance):
-        if isinstance(instance, TheoryLesson):
-            return 'theory'
-        elif isinstance(instance, PracticeLesson):
-            return 'practice'
-        return None
-
-    def get_description(self, obj):
-        if isinstance(obj, TheoryLesson):
-            return f"Theory Lesson, group {obj.group_id}"
-        elif isinstance(obj, PracticeLesson):
-            booked = f", booked by student {obj.student_id}" if obj.student_id else ", available"
-            return f"Practice Lesson at {obj.location}{booked}"
-        return ""
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['type'] = 'theory' if isinstance(instance, TheoryLesson) else 'practice'
-        return rep

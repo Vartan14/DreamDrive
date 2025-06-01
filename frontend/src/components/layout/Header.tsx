@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, ChevronDown, User } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { logout } from '@/utils/auth';
+import { logout } from '@/utils/requests/auth';
 
 import {
   DropdownMenu,

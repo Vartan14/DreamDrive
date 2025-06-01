@@ -17,15 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { fetchAvailablePracticeLessons } from '@/utils/requests/schedule/studentRequests';
+import { LessonEvent } from '@/types/scheduleInterface';
 
 // Mock schedule data
 const initialScheduleData = {
@@ -55,7 +48,7 @@ const initialScheduleData = {
 const mockAvailablePracticalLessons = [
   {
     id: 41,
-    start_time: "2025-05-22T09:00:00Z",
+    start_time: "2025-06-02T09:00:00Z",
     duration: "01:00:00",
     status: "available",
     filial_id: 1,
@@ -68,7 +61,7 @@ const mockAvailablePracticalLessons = [
   },
   {
     id: 42,
-    start_time: "2025-05-22T11:00:00Z",
+    start_time: "2025-06-02T11:00:00Z",
     duration: "01:30:00",
     status: "available",
     filial_id: 1,
@@ -95,21 +88,8 @@ const mockAvailablePracticalLessons = [
 ];
 
 // Vehicle options
-const vehicleOptions = [
-  { label: 'Toyota Corolla', value: 'toyota-corolla' },
-  { label: 'Honda Civic', value: 'honda-civic' },
-  { label: 'Ford Focus', value: 'ford-focus' },
-  { label: 'Volkswagen Golf', value: 'volkswagen-golf' },
-  { label: 'Volvo S60', value: 'volvo-s60' }
-];
 
-// Duration options
-const durationOptions = [
-  { label: '1 hour', value: '60' },
-  { label: '1.5 hours', value: '90' },
-  { label: '2 hours', value: '120' },
-  { label: '3 hours', value: '180' }
-];
+
 
 const Schedule = () => {
   const navigate = useNavigate();
@@ -122,7 +102,7 @@ const Schedule = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [scheduleData, setScheduleData] = useState(initialScheduleData);
-  const [availablePracticalLessons, setAvailablePracticalLessons] = useState([]);
+  const [availablePracticalLessons, setAvailablePracticalLessons] = useState<LessonEvent[]>([]);
   const [isLessonDetailsOpen, setIsLessonDetailsOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
 
@@ -152,23 +132,27 @@ const Schedule = () => {
   React.useEffect(() => {
     setHasBookedLesson(false); // Скидаємо при зміні дати
     if (date && user?.role === 'student' && isSubscribed) {
-      fetchAvailablePracticalLessons(date);
+      fetchLessonsFromApi(date);
     }
   }, [date, user?.role, isSubscribed]);
 
-  // Mock function to fetch available practical lessons
-  const fetchAvailablePracticalLessons = (selectedDate: Date) => {
-    // In a real app, this would make an API call with the selected date
-    console.log('Fetching available practical lessons for:', selectedDate.toISOString().split('T')[0]);
-    
-    // Filter mock data for the selected date
-    const selectedDateStr = selectedDate.toISOString().split('T')[0];
-    const filteredLessons = mockAvailablePracticalLessons.filter(lesson => {
-      const lessonDate = new Date(lesson.start_time).toISOString().split('T')[0];
-      return lessonDate === selectedDateStr;
-    });
-    
-    setAvailablePracticalLessons(filteredLessons);
+  // Функція для отримання занять з API
+  const fetchLessonsFromApi = async (selectedDate: Date) => {
+    try {
+      const allLessons = await fetchAvailablePracticeLessons();
+      const selectedDateStr = selectedDate.toISOString().split('T')[0];
+      const filteredLessons = allLessons.filter(lesson => {
+        const lessonDate = new Date(lesson.start).toISOString().split('T')[0];
+        return lessonDate === selectedDateStr;
+      });
+      setAvailablePracticalLessons(filteredLessons);
+    } catch (error) {
+      toast({
+        title: "Помилка",
+        description: "Не вдалося отримати доступні практичні заняття.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleBookLesson = (slotId: number) => {
@@ -179,7 +163,7 @@ const Schedule = () => {
       setIsBooking(false);
       setSelectedSlot(null);
       setAvailablePracticalLessons(prevLessons =>
-        prevLessons.filter(lesson => lesson.id !== slotId)
+        prevLessons.filter(lesson => lesson.id.toString() !== slotId.toString())
       );
       setHasBookedLesson(true); // Позначаємо, що студент забронював урок
       toast({
@@ -215,46 +199,11 @@ const Schedule = () => {
     return '';
   };
 
-  const handleAddAvailability = () => {
-    // Format the date as YYYY-MM-DD
-    const formattedDate = newAvailability.date.toISOString().split('T')[0];
-    
-    // Create a new availability slot
-    const newSlot = {
-      id: Date.now(), // generate a unique ID
-      date: formattedDate,
-      time: newAvailability.time,
-      duration: parseInt(newAvailability.duration),
-      type: newAvailability.type,
-      title: newAvailability.title,
-      instructor: user?.first_name || 'Instructor',
-      location: newAvailability.location,
-      vehicle: vehicleOptions.find(v => v.value === newAvailability.vehicle)?.label
-    };
-    
-    // Since scheduleData.availableSlots doesn't exist, we create a new structure with the new slot
-    const updatedScheduleData = {
-      ...scheduleData,
-      upcomingLessons: [...scheduleData.upcomingLessons]
-    };
-    
-    setScheduleData(updatedScheduleData);
-    
-    // Close the dialog
-    setIsAddAvailabilityOpen(false);
-    
-    // Show confirmation toast
-    toast({
-      title: 'Availability Added',
-      description: 'Your new availability has been added to the schedule.',
-    });
-  };
 
   const handleManageScheduleClick = () => {
     navigate('/instructor/schedule');
   };
 
-  // Removed the filterSlotsByDate function that was causing the error
 
   if (authState.isLoading) {
     return (
@@ -382,7 +331,7 @@ const Schedule = () => {
                               </div>
                               <div className="text-sm text-gray-400 mt-1">
                                 <Clock size={14} className="inline mr-1" />
-                                {formatTime(lesson.start_time)}
+                                {formatTime(lesson.start)}
                               </div>
                               <div className="text-sm text-gray-400 mt-1">
                                 <User size={14} className="inline mr-1" />
@@ -401,10 +350,10 @@ const Schedule = () => {
                             <div className="mt-3 md:mt-0">
                               <Button 
                                 className="bg-lider-red hover:bg-red-700"
-                                disabled={isBooking && selectedSlot === lesson.id}
-                                onClick={() => handleBookLesson(lesson.id)}
+                                disabled={isBooking && selectedSlot.toString() === lesson.id.toString()}
+                                onClick={() => handleBookLesson(Number(lesson.id))}
                               >
-                                {isBooking && selectedSlot === lesson.id ? (
+                                {isBooking && selectedSlot.toString() === lesson.id.toString() ? (
                                   <>
                                     <span className="animate-spin mr-2">⌛</span>
                                     Бронювання...
@@ -497,57 +446,6 @@ const Schedule = () => {
           </CardContent>
         </Card>
         
-        {/* {user?.role === 'instructor' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <Card className="bg-secondary border-gray-800">
-              <CardHeader>
-                <CardTitle>Quick Stats</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-800/50 rounded-lg">
-                    <div className="text-gray-400 text-sm mb-1">Today's Lessons</div>
-                    <div className="text-2xl font-bold">2</div>
-                  </div>
-                  <div className="p-4 bg-gray-800/50 rounded-lg">
-                    <div className="text-gray-400 text-sm mb-1">This Week</div>
-                    <div className="text-2xl font-bold">8</div>
-                  </div>
-                  <div className="p-4 bg-gray-800/50 rounded-lg">
-                    <div className="text-gray-400 text-sm mb-1">Available Slots</div>
-                    <div className="text-2xl font-bold">4</div>
-                  </div>
-                  <div className="p-4 bg-gray-800/50 rounded-lg">
-                    <div className="text-gray-400 text-sm mb-1">Completion Rate</div>
-                    <div className="text-2xl font-bold">95%</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-secondary border-gray-800">
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Button 
-                    className="w-full bg-lider-red hover:bg-red-700"
-                    onClick={() => setIsAddAvailabilityOpen(true)}
-                  >
-                    <Plus size={16} className="mr-2" /> Add New Availability
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Clock size={16} className="mr-2" /> Manage Working Hours
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Check size={16} className="mr-2" /> Mark Lesson as Completed
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )} */}
       </div>
 
       {/* Lesson Details Modal */}
@@ -604,163 +502,7 @@ const Schedule = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add Availability Dialog */}
-      {user?.role === 'instructor' && (
-        <Dialog open={isAddAvailabilityOpen} onOpenChange={setIsAddAvailabilityOpen}>
-          <DialogContent className="bg-secondary border-gray-700 text-white max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Availability</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Add a new time slot when you're available to teach.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-2">
-              {/* Event Title */}
-              <div className="grid grid-cols-4 items-center gap-3 mb-3">
-                <Label htmlFor="availability-title" className="text-right">
-                  Event Title
-                </Label>
-                <div className="col-span-3">
-                  <Input 
-                    id="availability-title" 
-                    placeholder="e.g., Evening practice session"
-                    value={newAvailability.title}
-                    onChange={(e) => setNewAvailability({...newAvailability, title: e.target.value})}
-                    className="bg-gray-800 border-gray-700"
-                  />
-                </div>
-              </div>
-              
-              {/* Two column layout for compact form */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  {/* Date */}
-                  <div className="mb-3">
-                    <Label htmlFor="availability-date" className="block mb-1">
-                      Date
-                    </Label>
-                    <Calendar
-                      mode="single"
-                      selected={newAvailability.date}
-                      onSelect={(date) => date && setNewAvailability({...newAvailability, date})}
-                      className="border border-gray-700 rounded-md p-2 w-full pointer-events-auto"
-                      classNames={{
-                        day_selected: "bg-lider-red text-white hover:bg-lider-red hover:text-white",
-                        day_today: "bg-gray-800 text-white",
-                        head_cell: "text-xs",
-                        cell: "text-xs p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                        day: "h-7 w-7 p-0 font-normal aria-selected:opacity-100"
-                      }}
-                    />
-                  </div>
-                  
-                  {/* Time */}
-                  <div className="mb-3">
-                    <Label htmlFor="availability-time" className="block mb-1">
-                      Time
-                    </Label>
-                    <Input 
-                      id="availability-time" 
-                      type="time" 
-                      value={newAvailability.time}
-                      onChange={(e) => setNewAvailability({...newAvailability, time: e.target.value})}
-                      className="bg-gray-800 border-gray-700"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  {/* Duration */}
-                  <div className="mb-3">
-                    <Label htmlFor="availability-duration" className="block mb-1">
-                      Duration
-                    </Label>
-                    <Select 
-                      value={newAvailability.duration}
-                      onValueChange={(value) => setNewAvailability({...newAvailability, duration: value})}
-                    >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
-                        <SelectValue placeholder="Select duration" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        {durationOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* Lesson Type */}
-                  <div className="mb-3">
-                    <Label htmlFor="availability-type" className="block mb-1">
-                      Lesson Type
-                    </Label>
-                    <Select 
-                      value={newAvailability.type}
-                      onValueChange={(value) => setNewAvailability({...newAvailability, type: value})}
-                    >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
-                        <SelectValue placeholder="Select lesson type" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        <SelectItem value="Practical">Practical</SelectItem>
-                        <SelectItem value="Theory">Theory</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Vehicle */}
-              <div className="mb-3">
-                <Label htmlFor="availability-vehicle" className="block mb-1">
-                  Vehicle
-                </Label>
-                <Select 
-                  value={newAvailability.vehicle}
-                  onValueChange={(value) => setNewAvailability({...newAvailability, vehicle: value})}
-                >
-                  <SelectTrigger className="bg-gray-800 border-gray-700">
-                    <SelectValue placeholder="Select vehicle" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
-                    {vehicleOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Location */}
-              <div className="mb-3">
-                <Label htmlFor="availability-location" className="block mb-1">
-                  Location
-                </Label>
-                <Input 
-                  id="availability-location" 
-                  value={newAvailability.location}
-                  onChange={(e) => setNewAvailability({...newAvailability, location: e.target.value})}
-                  className="bg-gray-800 border-gray-700"
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddAvailabilityOpen(false)}>
-                Cancel
-              </Button>
-              <Button className="bg-lider-red hover:bg-red-700" onClick={handleAddAvailability}>
-                Add Availability
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+
     </PageLayout>
   );
 };

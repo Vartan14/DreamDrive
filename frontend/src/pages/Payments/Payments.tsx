@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import PageLayout from '@/components/layout/PageLayout';
 import PageHeader from '@/components/ui/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, CreditCard, Calendar, RefreshCcw } from 'lucide-react';
+import { Check, CreditCard, Calendar } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { getPaymentHistory } from '@/utils/requests/payments';
+import type { Payment } from '@/types/paymentInterface';
 
 const pricingOptions = [
   {
@@ -59,32 +61,6 @@ const pricingOptions = [
   }
 ];
 
-
-// Mock payment history
-const paymentHistory = [
-  {
-    id: 'pay_12345',
-    date: '2023-05-15',
-    amount: 79.99,
-    description: 'Premium Plan - Monthly Subscription',
-    status: 'completed'
-  },
-  {
-    id: 'pay_12344',
-    date: '2023-04-15',
-    amount: 79.99,
-    description: 'Premium Plan - Monthly Subscription',
-    status: 'completed'
-  },
-  {
-    id: 'pay_12343',
-    date: '2023-03-15',
-    amount: 79.99,
-    description: 'Premium Plan - Monthly Subscription',
-    status: 'completed'
-  }
-];
-
 const Payments = () => {
   const navigate = useNavigate();
   const { user, isLoading, updateUser } = useAuthStore();
@@ -93,41 +69,47 @@ const Payments = () => {
   const [activeTab, setActiveTab] = useState<'plans' | 'history'>('plans');
   const isSubscribed = user?.role === 'student' && user.is_paid;
 
+  // Стан для історії оплат
+  const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
   // If not authenticated, redirect to login
   React.useEffect(() => {
     if (!isLoading && !user) {
       navigate('/login', { state: { from: location.pathname } });
     }
   }, [isLoading, user, navigate]);
+
+  // Завантаження історії оплат з бекенду
+  useEffect(() => {
+    if (activeTab === 'history' && user?.role === 'student') {
+      setLoadingHistory(true);
+      getPaymentHistory()
+        .then(data => setPaymentHistory(data))
+        .catch(() => setPaymentHistory([]))
+        .finally(() => setLoadingHistory(false));
+    }
+  }, [activeTab, user]);
+
   const handleSubscribe = (planId: string) => {
     setIsProcessing(true);
-    
-    // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
-      
       if (user?.role === 'student') {
-        // Update user subscription status
-        updateUser({
-          is_paid: true
-        });
-        
+        updateUser({ is_paid: true });
         toast({
           title: 'Subscription Successful',
           description: 'You now have full access to all learning materials and features.',
         });
-        
         navigate('/dashboard');
       }
     }, 1500);
   };
 
-  // Додаємо функцію для переходу на форму оплати з параметрами
   const handleSelectPlan = (plan: { title: string; price: string }) => {
-    // Передаємо дані через state (можна через query params, якщо потрібно)
     navigate('/payments/pay', {
       state: {
-        amount: Number(plan.price.replace(/\D/g, "")), // Витягуємо число з ціни
+        amount: Number(plan.price.replace(/\D/g, "")),
         description: plan.title,
       },
     });
@@ -147,7 +129,7 @@ const Payments = () => {
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
-                  <h2 className="text-xl font-bold mb-2">Статус вашої підписки</h2>
+                  <h2 className="text-xl font-bold mb-2">Статус вашої оплати</h2>
                   <div className="flex items-center">
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                       isSubscribed ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
@@ -156,18 +138,11 @@ const Payments = () => {
                     </span>
                     {isSubscribed && (
                       <span className="text-gray-400 text-sm">
-                        Premium-план • Автоматичне поновлення 15 червня 2023
+                        Категорія B 
                       </span>
                     )}
                   </div>
                 </div>
-                {isSubscribed && (
-                  <div className="mt-4 md:mt-0">
-                    <Button variant="outline" size="sm" className="border-lider-red text-lider-red hover:bg-lider-red/10">
-                      Керувати підпискою
-                    </Button>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -255,11 +230,16 @@ const Payments = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {paymentHistory.length > 0 ? (
+              {loadingHistory ? (
+                <div className="text-center py-8 text-gray-400">
+                  <CreditCard size={32} className="mx-auto mb-3 opacity-50" />
+                  <p>Завантаження...</p>
+                </div>
+              ) : paymentHistory.length > 0 ? (
                 <div className="space-y-4">
                   {paymentHistory.map(payment => (
                     <div 
-                      key={payment.id}
+                      key={payment.liqpay_order_id}
                       className="p-4 rounded-lg border border-gray-700 bg-gray-800/30"
                     >
                       <div className="flex flex-col md:flex-row justify-between">
@@ -267,15 +247,36 @@ const Payments = () => {
                           <div className="font-medium">{payment.description}</div>
                           <div className="text-sm text-gray-400">
                             <Calendar size={14} className="inline mr-1" />
-                            {new Date(payment.date).toLocaleDateString('uk-UA')}
+                            {/* Виправлена обробка дати */}
+                            {(() => {
+                              // Додаємо перевірку та fallback
+                              const date = payment.created_at ? new Date(payment.created_at) : null;
+                              if (date && !isNaN(date.getTime())) {
+                                // Формат: 29.05.2025, 21:48
+                                return date.toLocaleDateString('uk-UA', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                }) + ', ' + date.toLocaleTimeString('uk-UA', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: false,
+                                });
+                              }
+                              return 'Невідома дата';
+                            })()}
                           </div>
                         </div>
                         <div className="mt-3 md:mt-0 text-right">
-                          <div className="font-medium">${payment.amount.toFixed(2)}</div>
+                          <div className="font-medium">{payment.amount} грн</div>
                           <div className={`text-xs ${
-                            payment.status === 'completed' ? 'text-green-500' : 'text-yellow-500'
+                            payment.status === 'success' ? 'text-green-500' : payment.status === 'pending' ? 'text-yellow-500' : 'text-red-500'
                           }`}>
-                            {payment.status === 'completed' ? 'Завершено' : 'В очікуванні'}
+                            {payment.status === 'success'
+                              ? 'Завершено'
+                              : payment.status === 'pending'
+                              ? 'В очікуванні'
+                              : 'Помилка'}
                           </div>
                         </div>
                       </div>

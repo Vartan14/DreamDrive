@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { setUser } from "@/utils/auth";
+import { setUser } from "@/utils/requests/auth";
 import { useAuthStore } from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
 

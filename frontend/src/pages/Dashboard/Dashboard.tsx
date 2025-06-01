@@ -32,7 +32,7 @@ const Dashboard = () => {
           {/* Role-specific dashboard content */}
           {user?.role === 'student' && <StudentDashboard user={user} />}
           {user?.role === 'teacher' && <InstructorDashboard user={user} />}
-          {/* {user?.role === 'admin' && <AdminDashboard user={user} />} */}
+          {user?.role === 'admin' && <AdminDashboard user={user} />}
         </div>
       </PageLayout>
     </ProtectedRoute>

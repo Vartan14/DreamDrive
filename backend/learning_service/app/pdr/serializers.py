@@ -9,17 +9,18 @@ class RoadVisualGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RoadVisualGroup
-        fields = '__all__'
+        fields = ['type', 'number', 'title']
 
 
 class RoadVisualElementSerializer(serializers.ModelSerializer):
     """
     Serializer for RoadVisualElement model.
     """
+    group_number = serializers.CharField(source='group.number', read_only=True)
 
     class Meta:
         model = RoadVisualElement
-        fields = '__all__'
+        fields = ['id', 'element_id', 'name', 'text', 'image', 'group_number']
 
 
 class RuleSectionSerializer(serializers.ModelSerializer):
@@ -36,7 +37,8 @@ class TrafficRuleSerializer(serializers.ModelSerializer):
     """
     Serializer for TrafficRule model.
     """
+    section_number = serializers.CharField(source='section.number', read_only=True)
 
     class Meta:
         model = TrafficRule
-        fields = ['rule_id', 'section', 'text']
+        fields = ['rule_id', 'text', 'section_number']

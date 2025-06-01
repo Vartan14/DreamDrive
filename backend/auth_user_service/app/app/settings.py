@@ -139,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kyiv'
 
 USE_I18N = True
 
@@ -200,7 +200,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -274,3 +274,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 PAYMENT_API_KEY = 'django-insecure--*+x1us_e0j+q++b&*g6$jna6of%n1k58c@zka)vzcp+ph48mg'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # або 'cache', якщо хочеш швидше
+SESSION_COOKIE_AGE = 1209600  # 2 тижні у секундах
+SESSION_SAVE_EVERY_REQUEST = True  # оновлює сесію на кожен запит

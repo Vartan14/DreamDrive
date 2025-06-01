@@ -16,64 +16,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-// FullCalendar imports
+import { getTeacherEvents } from '@/utils/requests/schedule/teacherEvents';
+import { 
+  deleteTheoryLesson,
+  deletePracticalLesson,
+  updateTheoryLesson,
+  updatePracticalLesson 
+} from '@/utils/requests/schedule/lessons';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid/index.js';
 import interactionPlugin from '@fullcalendar/interaction/index.js';
 
-// Custom components
 import { LessonDetailModal } from '@/components/schedule/LessonDetailModal';
 import { CreateLessonModal } from '@/components/schedule/CreateLessonModal';
-import { LessonEvent, CreateTheoryLessonData, CreatePracticalLessonData } from '@/types/schedule';
+import { LessonEvent, CreateTheoryLessonData, CreatePracticalLessonData, PracticalLesson, TheoryLesson } from '@/types/scheduleInterface';
+import { co } from 'node_modules/@fullcalendar/core/internal-common';
+import Lessons from '../Deprecated/Lessons';
+import ukLocale from '@fullcalendar/core/locales/uk';
 
-// Mock data for instructor's schedule
-const MOCK_EVENTS: LessonEvent[] = [
-  {
-    id: "t1",
-    title: "Теоретичне заняття - Група A1",
-    start: "2025-05-22T10:00:00",
-    end: "2025-05-22T11:00:00",
-    type: "theory",
-    group: "Група A1",
-    is_online: false,
-    location: "Головний офіс, ауд. 3",
-    instructor_id: 5
-  },
-  {
-    id: "p1",
-    title: "Практичне заняття - John Smith",
-    start: "2025-05-23T14:00:00",
-    end: "2025-05-21T15:00:00",
-    type: "practical",
-    student: "John Smith",
-    car: "Ford Fiesta AB5678CD",
-    location: "Філія 1",
-    instructor_id: 5
-  }
-];
+
 
 const InstructorSchedule = () => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const authState  = useAuthStore();
   const { toast } = useToast();
   const user = authState.user;
-  
-  // State for tabs
+
   const [activeTab, setActiveTab] = useState("calendar");
-  
-  // State for filters
   const [lessonTypeFilter, setLessonTypeFilter] = useState("all");
-  
-  // State for events
-  const [events, setEvents] = useState<LessonEvent[]>(MOCK_EVENTS);
-  
+  const [events, setEvents] = useState<LessonEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // State for modals
   const [selectedLesson, setSelectedLesson] = useState<LessonEvent | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<LessonEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  
+
+  const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const data = await getTeacherEvents();
+        setEvents(data);
+      } catch (e) {
+        toast({
+          title: "Помилка",
+          description: "Не вдалося завантажити заняття.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   // Filter events based on selected lesson type
   const filteredEvents = events.filter(event => {
@@ -89,7 +90,7 @@ const InstructorSchedule = () => {
   // Handle click on event
   const handleEventClick = (info: any) => {
     const eventId = info.event.id;
-    const lesson = events.find(event => event.id === eventId);
+    const lesson = events.find(event => event.id.toString() === eventId.toString());
     
     if (lesson) {
       setSelectedLesson(lesson);
@@ -97,88 +98,207 @@ const InstructorSchedule = () => {
     }
   };
 
-  // Handle click on date/time slot
+
   const handleDateClick = (info: any) => {
-    setSelectedDate(info.date);
+    if (info.date < new Date(new Date().setSeconds(0, 0))) {
+      toast({
+        title: "Оберіть іншу дату",
+        description: "Неможливо додати заняття на цю дату.",
+        duration: 1000
+      });
+      return;
+    }
+    const [datePart, timePart] = info.dateStr.split('T');
+    const [hours, minutes] = timePart.split(':');
+    const selected = new Date(
+      Number(datePart.split('-')[0]),
+      Number(datePart.split('-')[1]) - 1,
+      Number(datePart.split('-')[2]),
+      Number(hours),
+      Number(minutes)
+    );
+    setSelectedDate(selected);
     setIsCreateModalOpen(true);
   };
   
-  // Handle create new lesson button click
+
+  const canEditLesson = (lesson: LessonEvent | null): boolean =>   {
+    if (!lesson) return false;
+
+    const now = new Date();
+    const start = new Date(lesson.start);
+    const diffMs = start.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 24) return false;
+
+    return (
+      lesson.type === 'theory' ||
+      (lesson.type === 'practical' && lesson.status === 'available')
+    );
+  }
+
   const handleCreateLessonClick = () => {
-    setSelectedDate(new Date());
+    const now = new Date();
+    const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 7, 0, 0, 0); // наступний день, 07:00
+    setSelectedDate(nextDay);
     setIsCreateModalOpen(true);
   };
 
-  // Handle create theory lesson
+  const calculateEndTime = (startTime: string, duration: string): string =>  {
+    const startDate = new Date(startTime);
+    const [hours, minutes, seconds] = duration.split(':').map(Number);
+
+    startDate.setHours(startDate.getHours() + (hours || 0));
+    startDate.setMinutes(startDate.getMinutes() + (minutes || 0));
+    startDate.setSeconds(startDate.getSeconds() + (seconds || 0));
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const endTime = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}T${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
+
+    return endTime;
+  }
+
+
+
   const handleCreateTheoryLesson = (lessonData: CreateTheoryLessonData) => {
-    const startDateTime = new Date(lessonData.date);
-    const [hours, minutes] = lessonData.time.split(':').map(Number);
-    startDateTime.setHours(hours, minutes, 0);
-    
-    const durationInMinutes = parseInt(lessonData.duration);
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setMinutes(endDateTime.getMinutes() + durationInMinutes);
-    
+
     const newLesson: LessonEvent = {
-      id: `t${Date.now()}`,
-      title: `Теорія - ${lessonData.title}`,
-      start: startDateTime.toISOString(),
-      end: endDateTime.toISOString(),
+      id:  lessonData.id,
+      title: `${lessonData.lesson_title || 'Теоретичне заняття'}\n${lessonData.group.name}`,
+      start: lessonData.time,
+      end: calculateEndTime(lessonData.time, lessonData.duration),
+      duration: lessonData.duration,
       type: 'theory',
-      group: `Група ${lessonData.group_id}`,
+      group_id: lessonData.group.id,
+      group: lessonData.group.name,
       is_online: lessonData.is_online,
-      location: `Філія ${lessonData.filial_id}`,
-      instructor_id: user?.user_id || 0
+      filial_id: lessonData.filial_id,
     };
     
     setEvents([...events, newLesson]);
     
     toast({
-      title: "Теоретичне заняття створено",
-      description: `Теорія запланована на ${startDateTime.toLocaleString()}`
+      title: "Теоретичне заняття додано",
+      description: `Заняття заплановано на ${lessonData.time.split('T')[0]}`
     });
   };
 
-  // Handle create practical lesson
   const handleCreatePracticalLesson = (lessonData: CreatePracticalLessonData) => {
-    const startDateTime = new Date(lessonData.date);
-    const [hours, minutes] = lessonData.time.split(':').map(Number);
-    startDateTime.setHours(hours, minutes, 0);
-    
-    const durationInMinutes = parseInt(lessonData.duration);
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setMinutes(endDateTime.getMinutes() + durationInMinutes);
-    
+
     const newLesson: LessonEvent = {
-      id: `p${Date.now()}`,
-      title: `Практика - Вільно`,
-      start: startDateTime.toISOString(),
-      end: endDateTime.toISOString(),
+      id: lessonData.id,
+      title: `${lessonData.lesson_title || 'Практичне заняття'}\nДоступно до бронювання`,
+      start: lessonData.time,
+      end: calculateEndTime(lessonData.time, lessonData.duration),
+      duration: lessonData.duration,
       type: 'practical',
       car: lessonData.car,
       location: lessonData.location,
-      instructor_id: user?.user_id || 0
+      filial_id: lessonData.filial_id,
     };
     
     setEvents([...events, newLesson]);
     
     toast({
       title: "Практичне заняття створено",
-      description: `Практика запланована на ${startDateTime.toLocaleString()}`
+      description: `Практичне заняття заплановано на ${lessonData.time.split('T')[0]}`
     });
   };
 
-  // Handle delete lesson
-  const handleDeleteLesson = () => {
-    if (!selectedLesson) return;
-    
-    setEvents(events.filter(event => event.id !== selectedLesson.id));
-    setIsDetailModalOpen(false);
-    
+
+  const handleUpdateTheoryLesson = async (lessonData: CreateTheoryLessonData) => {
+    const id = lessonData.id;
+
+    setEvents(prevEvents =>
+      prevEvents.map(event =>
+        event.id.toString() === id.toString()
+          ? {
+              ...event,
+              title: `${lessonData.lesson_title || 'Теоретичне заняття'}\n${lessonData.group.name}`,
+              start: lessonData.time,
+              end: calculateEndTime(lessonData.time, lessonData.duration),
+              duration: lessonData.duration,
+              group_id: lessonData.group.id,
+              group: lessonData.group.name,
+              is_online: lessonData.is_online,
+              filial_id: lessonData.filial_id,
+              isEdited: true, 
+            }
+          : event as LessonEvent
+      )
+    );
+
     toast({
-      title: "Заняття видалено",
-      description: `${selectedLesson.type === 'theory' ? 'Теоретичне' : 'Практичне'} заняття було видалено.`
+      title: "Теоретичне заняття змінено",
+      description: `Заняття заплановано на ${lessonData.time.split('T')[0]}`
     });
+  };
+
+  const handleUpdatePracticalLesson = async (lessonData: CreatePracticalLessonData) => {
+    const id = lessonData.id;
+    setEvents(prevEvents =>
+          prevEvents.map(event =>
+            event.id.toString() === id.toString()
+              ? {
+                  ...event,
+                  title: `${lessonData.lesson_title || 'Практичне заняття'}\nДоступно до бронювання`,
+                  start: lessonData.time,
+                  end: calculateEndTime(lessonData.time, lessonData.duration),
+                  duration: lessonData.duration,
+                  type: 'practical',
+                  car: lessonData.car,
+                  location: lessonData.location,
+                  isEdited: true, 
+                }
+              : event
+          )
+        );
+
+    toast({
+      title: "Практичне заняття змінено",
+      description: `Заняття заплановано на ${lessonData.time.split('T')[0]} `
+    });
+  };
+
+  const handleEditLesson = () => {
+    setEditingLesson(selectedLesson);
+    setIsEditModalOpen(true);
+    setIsDetailModalOpen(false);
+  };
+
+  const handleDeleteLesson = async () => {
+    if (!selectedLesson) return;
+
+    console.log("Deleting lesson:", selectedLesson);
+
+    try {
+      if (selectedLesson.type === 'theory') {
+        await deleteTheoryLesson(Number(selectedLesson.id));
+      } else if (selectedLesson.type === 'practical') {
+        await deletePracticalLesson(Number(selectedLesson.id));
+      } else
+      {
+        console.error("Unknown lesson type:", selectedLesson);
+        throw new Error("Unknown lesson type");
+      }
+
+      // Оновлюємо події після видалення
+      //await fetchEvents();
+      setEvents(events.filter(e => e.id !== selectedLesson.id));
+      setIsDetailModalOpen(false);
+
+      toast({
+        title: "Заняття видалено",
+        description: `${selectedLesson.type === 'theory' ? 'Теоретичне' : 'Практичне'} заняття було видалено.`
+      });
+    } catch (error) {
+      toast({
+        title: "Помилка",
+        description: "Не вдалося видалити заняття.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Format date for display
@@ -200,7 +320,7 @@ const InstructorSchedule = () => {
     });
   };
 
-  if (authState.isLoading) {
+  if (authState.isLoading || loading) {
     return (
       <PageLayout>
         <div className="container-custom py-20 text-center">
@@ -214,7 +334,7 @@ const InstructorSchedule = () => {
     <ProtectedRoute allowedRoles={['teacher']}>
       <PageLayout>
         <PageHeader 
-          title="Розклад інструктора" 
+          title="Розклад викладача" 
           subtitle="Керуйте своїм навчальним розкладом та доступністю"
         />
         
@@ -260,7 +380,7 @@ const InstructorSchedule = () => {
                       .calendar-container {
                         /* Збільшено висоту календаря */
                         height: calc(80vh - 200px);
-                        min-height: 500px;
+                        min-height: 600px;
                       }
                       .calendar-container .fc {
                         height: 100%;
@@ -270,9 +390,14 @@ const InstructorSchedule = () => {
                         border-color: rgba(37, 99, 235, 0.5);
                         color: #e2e8f0;
                       }
-                      .practical-event {
+                      .practical-available-event {
                         background-color: rgba(5, 150, 105, 0.15);
                         border-color: rgba(5, 150, 105, 0.5);
+                        color: #e2e8f0;
+                      }
+                      .practical-booked-event {
+                        background-color: rgba(251, 146, 60, 0.18) !important; /* оранжевий */
+                        border-color: rgba(251, 146, 60, 0.5) !important;
                         color: #e2e8f0;
                       }
                       .fc-timegrid-event-harness {
@@ -320,6 +445,11 @@ const InstructorSchedule = () => {
                       .fc .fc-timegrid-slots {
                         border-top: 0;
                       }
+                      .fc-timegrid-event .fc-event-time {
+                        font-size: 1rem !important;      /* такий самий як .font-medium (title) */
+                        font-weight: 500 !important;     /* відповідає класу font-medium */
+                        color: #fff !important;
+                      }
                       @media (max-width: 640px) {
                         .calendar-container {
                           height: calc(90vh - 180px);
@@ -343,7 +473,8 @@ const InstructorSchedule = () => {
                       `}
                     </style>
                     
-                    <FullCalendar
+                    <FullCalendar 
+                      timeZone="Europe/Kyiv"
                       plugins={[timeGridPlugin, interactionPlugin]}
                       initialView="timeGridWeek"
                       headerToolbar={{
@@ -351,18 +482,41 @@ const InstructorSchedule = () => {
                         center: 'title',
                         right: 'timeGridWeek,timeGridDay'
                       }}
+                      slotLabelFormat={{
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false 
+                      }}
+                      eventTimeFormat={{
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }}
                       events={filteredEvents}
-                      slotMinTime="08:00:00"
-                      slotMaxTime="20:00:00"
+                      slotMinTime="07:00:00"
+                      slotMaxTime="19:00:00"
                       nowIndicator={true}
                       eventClick={handleEventClick}
                       dateClick={handleDateClick}
                       eventClassNames={(info) => {
-                        const eventData = events.find(e => e.id === info.event.id);
-                        return eventData?.type === 'theory' ? 'theory-event' : 'practical-event';
+                    const eventData = filteredEvents.find(e => e.id.toString() === info.event.id.toString());
+                        if (eventData?.type === 'theory') {
+                          return 'theory-event';
+                        }
+                        else if (eventData?.type === 'practical') {
+                          if (eventData.status === 'booked') {
+                            return 'practical-booked-event';  
+                          }
+                          else {
+                            return 'practical-available-event';  
+                          }
+                        }
+                        
                       }}
                       height="100%"
                       allDaySlot={false}
+                      locale="uk"
+                      locales={[ukLocale]}
                     />
                   </div>
                 </CardContent>
@@ -392,11 +546,21 @@ const InstructorSchedule = () => {
                                   {lesson.type === 'theory' ? (
                                     <div className="w-3 h-3 rounded-full bg-blue-500 mr-3"></div>
                                   ) : (
-                                    <div className="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                                    <div
+                                      className={
+                                        "w-3 h-3 rounded-full mr-3 " +
+                                        (lesson.status === 'booked'
+                                          ? "bg-orange-500"
+                                          : lesson.status === 'completed' || lesson.status === 'cancelled'
+                                            ? "bg-red-500"
+                                            : "bg-green-500")
+                                      }
+                                    ></div>
                                   )}
                                   <div>
                                     <h3 className="font-medium">
-                                      {lesson.type === 'theory' ? 'Теоретичне заняття' : 'Практичне заняття'}
+                                      {lesson.type === 'theory' ? 'Теоретичне заняття' : 'Практичне заняття'} 
+                                      { lesson.lesson_title !== '' ? `: ${lesson.lesson_title}` : '' } 
                                     </h3>
                                     <p className="text-sm text-gray-400">
                                       {formatEventDate(lesson.start)} • {formatEventTime(lesson.start)}
@@ -407,14 +571,23 @@ const InstructorSchedule = () => {
                                 <div className="mt-3 text-sm">
                                   {lesson.type === 'theory' ? (
                                     <>
-                                      <p>Група: {lesson.group}</p>
+                                      <p>{lesson.group}</p>
                                       <p className="text-gray-400">
-                                        {lesson.location} • {lesson.is_online ? 'Онлайн' : 'Очно'}
+                                        {lesson.location}{lesson.is_online ? 'Онлайн' : 'Офлайн'}
                                       </p>
                                     </>
                                   ) : (
                                     <>
-                                      <p>Студент: {lesson.student || 'Вільно'}</p>
+                                      <p>{
+                                        lesson.status === 'available' ? 'Доступно до бронювання'
+                                        : lesson.status === 'booked' ? 'Заброньовано'
+                                        : lesson.status === 'completed' ? 'Завершено'
+                                        : lesson.status === 'cancelled' ? 'Скасовано'
+                                        : '—'
+                                      }</p>
+                                      {lesson.status === 'booked' && (
+                                        <p>{lesson.student}</p>
+                                      )}
                                       <p className="text-gray-400">
                                         {lesson.location} • {lesson.car}
                                       </p>
@@ -446,7 +619,8 @@ const InstructorSchedule = () => {
                         className="bg-lider-red hover:bg-red-700 mt-2"
                         onClick={() => {
                           setActiveTab("calendar");
-                          setIsCreateModalOpen(true);
+                          handleCreateLessonClick();
+                          //setIsCreateModalOpen(true);
                         }}
                       >
                         Додати нове заняття
@@ -464,24 +638,26 @@ const InstructorSchedule = () => {
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
           lesson={selectedLesson}
-          canEdit={true}
+          canEdit={canEditLesson(selectedLesson)}
           onDelete={handleDeleteLesson}
-          onEdit={() => {
-            toast({
-              title: "Редагування",
-              description: "Редагування занять поки не реалізовано."
-            });
-          }}
+          onEdit={handleEditLesson}         
         />
         
-        {/* Create lesson modal with compact date selector */}
         <CreateLessonModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
+          isOpen={isCreateModalOpen || isEditModalOpen}
+           onClose={() => {
+            setIsCreateModalOpen(false);
+            setIsEditModalOpen(false);
+            setEditingLesson(null);
+          }}
           selectedDate={selectedDate}
           onCreateTheoryLesson={handleCreateTheoryLesson}
           onCreatePracticalLesson={handleCreatePracticalLesson}
+          onUpdateTheoryLesson={handleUpdateTheoryLesson}
+          onUpdatePracticalLesson={handleUpdatePracticalLesson}  
           useCompactDatePicker={true}
+          lessonToEdit={editingLesson}
+          events={events}
         />
       </PageLayout>
     </ProtectedRoute>  

@@ -24,10 +24,10 @@ async def proxy_to_teacher_theory_lessons(request: Request, path: str, user=Depe
     )
 
 
-@router.api_route("/practice-lessons/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
-async def proxy_to_teacher_practice_lessons(request: Request, path: str, user=Depends(get_user_info_from_jwt)):
+@router.api_route("/practical-lessons/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def proxy_to_teacher_practical_lessons(request: Request, path: str, user=Depends(get_user_info_from_jwt)):
     body = await request.body()
-    url = f"{settings.SCHEDULE_SERVICE_URL}/{request_prefix}/practice-lessons/{path}/"
+    url = f"{settings.SCHEDULE_SERVICE_URL}/{request_prefix}/practice-lessons/{path}"
     headers = prepare_forward_headers(request, user)
 
     return await proxy_request(

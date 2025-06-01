@@ -9,9 +9,6 @@ from dj_rest_auth import views as dj_rest_auth_views
 from app import settings
 from accounts.views import GoogleLogin, GoogleLoginCallback, LoginPage
 
-
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("login/", LoginPage.as_view(), name="login"),
@@ -35,7 +32,7 @@ urlpatterns = [
     # App Routes
     path('api/v1/users/', include('user.urls')),
     path('api/v1/groups/', include('group.urls')),
-    path('api/v1/profiles/', include('user_profile.urls')),
+    path('api/v1/profile/', include('user_profile.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -100,7 +100,7 @@ class PracticeLessonViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         instructor_id = self.request.user.id
-        queryset = TheoryLesson.objects.filter(instructor_id=instructor_id)
+        queryset = PracticeLesson.objects.filter(instructor_id=instructor_id)
         return queryset
 
     def perform_create(self, serializer):
@@ -130,9 +130,6 @@ class InstructorCalendarEvents(generics.ListAPIView):
             raise ValidationError("Invalid date format. Expected format is yyyy-mm-dd.")
 
         return list(theory) + list(practice)
-
-
-
 
 
 

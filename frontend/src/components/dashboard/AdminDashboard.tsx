@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AdminProfile } from '@/types/user';
+import { UserData } from '@/types/userInterface';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Building, CreditCard, Calendar, Settings, MessageSquare, TrendingUp, BookOpen, FileText } from 'lucide-react';
 
 interface AdminDashboardProps {
-  user: AdminProfile;
+  user: UserData;
 }
 
 // Мок-дані для адмін-дашборду

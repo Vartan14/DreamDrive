@@ -48,7 +48,23 @@ async def get_available_practice_lessons(request: Request, user=Depends(get_user
     url = f"{settings.SCHEDULE_SERVICE_URL}/{request_prefix}/available-practice-lessons/"
     headers = prepare_forward_headers(request, user)
 
-    return await make_request("GET", url, headers, body)
+    data =  await make_request("GET", url, headers, body)
+    instructors = {}
+
+    for lesson in data:
+        instructor_id = lesson.get("instructor_id")
+
+        if instructor_id not in instructors:
+            inst_url = f"{settings.AUTH_SERVICE_URL}/api/v1/profile/teachers/{instructor_id}/"
+            instructor_info = await make_request("GET", inst_url, headers, b"")
+            # print(instructor_info)
+
+            instructors[instructor_id] = instructor_info.get("name", "Unknown Instructor")
+
+        lesson["instructor_name"] = instructors[instructor_id]
+
+    return data
+
 
 
 @router.patch("/book-practice-lesson/{slot_id:int}")

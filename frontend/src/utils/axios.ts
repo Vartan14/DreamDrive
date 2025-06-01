@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logout, getRefreshToken, isAccessTokenExpired, setAuthUser } from './auth';
+import { logout, getRefreshToken, isAccessTokenExpired, setAuthUser } from './requests/auth';
 import { API_BASE_URL } from './constant';
 import Cookie from "js-cookie";
 

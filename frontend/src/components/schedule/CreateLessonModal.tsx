@@ -1,107 +1,18 @@
-
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { CreateTheoryLessonData, CreatePracticalLessonData } from '@/types/schedule';
+import { CreateTheoryLessonData, CreatePracticalLessonData, PracticalLesson, TheoryLesson, LessonEvent } from '@/types/scheduleInterface';
+import {DateDropdowns} from '@/components/schedule/DateDropdowns';
+import { fetchMyGroups } from '@/utils/requests/groups';
+import { toast } from "@/components/ui/use-toast";
+import { createTheoryLesson, createPracticalLesson, updateTheoryLesson, updatePracticalLesson } from '@/utils/requests/schedule/lessons';
 
-// Years, months, and days for dropdowns
-const YEARS = [2025, 2026, 2027, 2028, 2029, 2030];
-const MONTHS = [
-  { value: '1', label: 'January' },
-  { value: '2', label: 'February' },
-  { value: '3', label: 'March' },
-  { value: '4', label: 'April' },
-  { value: '5', label: 'May' },
-  { value: '6', label: 'June' },
-  { value: '7', label: 'July' },
-  { value: '8', label: 'August' },
-  { value: '9', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' }
-];
 
-// Cars for dropdown
-const CARS = [
-  { value: 'toyota_corolla', label: 'Toyota Corolla AB1234CD' },
-  { value: 'vw_polo', label: 'VW Polo BC5678EF' },
-  { value: 'ford_focus', label: 'Ford Focus GH9012IJ' },
-  { value: 'honda_civic', label: 'Honda Civic KL3456MN' },
-  { value: 'skoda_octavia', label: 'Škoda Octavia OP7890QR' }
-];
-
-// Locations for dropdown
-const LOCATIONS = [
-  { value: 'main', label: 'Main Branch' },
-  { value: 'north', label: 'North Branch' },
-  { value: 'east', label: 'East Branch' },
-  { value: 'west', label: 'West Branch' },
-  { value: 'south', label: 'South Branch' }
-];
-
-// Compact date selector component with dropdowns
-const DateDropdowns = ({ 
-  year, 
-  month, 
-  day, 
-  onYearChange, 
-  onMonthChange, 
-  onDayChange 
-}) => {
-  // Get max days in the selected month
-  const getMaxDays = (year, month) => {
-    return new Date(year, month, 0).getDate();
-  };
-  
-  const maxDays = month ? getMaxDays(year || new Date().getFullYear(), parseInt(month)) : 31;
-  const days = Array.from({ length: maxDays }, (_, i) => i + 1);
-  
-  return (
-    <div className="flex gap-2">
-      <div className="w-1/3">
-        <Select value={day?.toString()} onValueChange={onDayChange}>
-          <SelectTrigger className="bg-gray-800 border-gray-700">
-            <SelectValue placeholder="Day" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700 max-h-60">
-            {days.map(d => (
-              <SelectItem key={d} value={d.toString()}>{d}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="w-1/3">
-        <Select value={month?.toString()} onValueChange={onMonthChange}>
-          <SelectTrigger className="bg-gray-800 border-gray-700">
-            <SelectValue placeholder="Month" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
-            {MONTHS.map(m => (
-              <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="w-1/3">
-        <Select value={year?.toString()} onValueChange={onYearChange}>
-          <SelectTrigger className="bg-gray-800 border-gray-700">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
-            {YEARS.map(y => (
-              <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
-};
 
 interface CreateLessonModalProps {
   isOpen: boolean;
@@ -109,7 +20,11 @@ interface CreateLessonModalProps {
   selectedDate: Date;
   onCreateTheoryLesson: (data: CreateTheoryLessonData) => void;
   onCreatePracticalLesson: (data: CreatePracticalLessonData) => void;
+  onUpdateTheoryLesson: (data: CreateTheoryLessonData) => void;
+  onUpdatePracticalLesson: (data: CreatePracticalLessonData) => void;
   useCompactDatePicker?: boolean;
+  lessonToEdit: LessonEvent; 
+  events: LessonEvent[]; 
 }
 
 export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({ 
@@ -118,27 +33,37 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   selectedDate, 
   onCreateTheoryLesson, 
   onCreatePracticalLesson,
-  useCompactDatePicker = false
+  onUpdateTheoryLesson,
+  onUpdatePracticalLesson,
+  useCompactDatePicker = false,
+  lessonToEdit,
+  events
 }) => {
   const [lessonType, setLessonType] = useState('theory');
-  
-  // Get initial date values from selectedDate
+  const [groups, setGroups] = useState<{ id: string; name: string }[]>([]);
+
   const initialYear = selectedDate.getFullYear();
   const initialMonth = selectedDate.getMonth() + 1;
   const initialDay = selectedDate.getDate();
+  const initialHours = selectedDate.getHours().toString().padStart(2, '0');
+  const initialMinutes = selectedDate.getMinutes().toString().padStart(2, '0');
+  const timeStr = `${initialHours}:${initialMinutes}`;
   
-  // Theory lesson form state
+
+  // Theory lesson state
   const [theoryFormData, setTheoryFormData] = useState<CreateTheoryLessonData>({
     date: selectedDate,
-    time: '10:00',
-    duration: '60',
-    group_id: 'A1',
+    time: timeStr,
+    lesson_title: '',
+    duration: '01:00:00', 
+    group:{
+      id: '',
+      name:  '',
+    },
     filial_id: '1',
     is_online: false,
-    title: 'Theory Lesson'
   });
   
-  // State for date components (theory)
   const [theoryYear, setTheoryYear] = useState(initialYear.toString());
   const [theoryMonth, setTheoryMonth] = useState(initialMonth.toString());
   const [theoryDay, setTheoryDay] = useState(initialDay.toString());
@@ -146,14 +71,14 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   // Practical lesson form state
   const [practicalFormData, setPracticalFormData] = useState<CreatePracticalLessonData>({
     date: selectedDate,
-    time: '14:00',
-    duration: '60',
+    time: timeStr,
+    lesson_title:'',
+    duration: '01:00:00', 
     filial_id: '1',
-    car: 'toyota_corolla',
-    location: 'main'
+    car: '',
+    location: ''
   });
   
-  // State for date components (practical)
   const [practicalYear, setPracticalYear] = useState(initialYear.toString());
   const [practicalMonth, setPracticalMonth] = useState(initialMonth.toString());
   const [practicalDay, setPracticalDay] = useState(initialDay.toString());
@@ -188,6 +113,19 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     }
   };
   
+  React.useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const groups = await fetchMyGroups(true);
+        setGroups(groups); // збережіть у стані
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+
   // React to changes in date dropdowns
   React.useEffect(() => {
     updateTheoryDate();
@@ -199,13 +137,18 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   
   // Update state when selectedDate changes
   React.useEffect(() => {
-    setTheoryFormData(prev => ({ ...prev, date: selectedDate }));
-    setPracticalFormData(prev => ({ ...prev, date: selectedDate }));
-    
+    const hours= (selectedDate.getHours()).toString().padStart(2, '0');
+    const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+
+    const timeStr = `${hours}:${minutes}`;
+
+    setTheoryFormData(prev => ({ ...prev, time: timeStr, date: selectedDate }));
+    setPracticalFormData(prev => ({ ...prev, time: timeStr, date: selectedDate }));
+
     setTheoryYear(selectedDate.getFullYear().toString());
     setTheoryMonth((selectedDate.getMonth() + 1).toString());
     setTheoryDay(selectedDate.getDate().toString());
-    
+
     setPracticalYear(selectedDate.getFullYear().toString());
     setPracticalMonth((selectedDate.getMonth() + 1).toString());
     setPracticalDay(selectedDate.getDate().toString());
@@ -219,92 +162,279 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     setPracticalFormData(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleSubmitTheory = (e: React.FormEvent) => {
-    e.preventDefault();
-    onCreateTheoryLesson(theoryFormData);
-    onClose();
+  const validateNotPastDate = (date: Date) => {
+    if (new Date(date).getTime() < Date.now()) {
+      toast({
+        title: "Помилка",
+        description: "Неможливо створити заняття у минулому!",
+        variant: "destructive",
+        duration: 2000
+      });
+      return false;
+    }
+    return true;
   };
+
+  const validateTimeRange = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+    if (!(totalMinutes >= 7 * 60 && totalMinutes < 18 * 60)) {
+      toast({
+        title: "Недопустимий час",
+        description: "Заняття можна додати лише з 07:00 до 18:00.",
+        variant: "destructive",
+        duration: 2000
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const  getTheoryLessonData = (form: CreateTheoryLessonData): TheoryLesson => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = form.date.getFullYear();
+    const month = pad(form.date.getMonth() + 1);
+    const day = pad(form.date.getDate());
+    const start_time = `${year}-${month}-${day}T${form.time}`;
+    return {
+      title: form.lesson_title,
+      start_time,
+      duration: form.duration,
+      filial_id: form.filial_id.toString(),
+      group_id: form.group.id.toString(),
+      is_online: form.is_online,
+    };
+  };
+
+  const getPracticalLessonData = (form: CreatePracticalLessonData): PracticalLesson => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = form.date.getFullYear();
+    const month = pad(form.date.getMonth() + 1);
+    const day = pad(form.date.getDate());
+    const start_time = `${year}-${month}-${day}T${form.time}`;
+    return {
+      title: form.lesson_title,
+      start_time,
+      duration: form.duration,
+      filial_id: form.filial_id.toString(),
+      car: form.car,
+      location: form.location,
+    };
+  };
+
+  const isEditMode = Boolean(lessonToEdit);
+
+  const parseDate = (dateStr: string) => {
   
-  const handleSubmitPractical = (e: React.FormEvent) => {
+    const date = new Date(dateStr);
+    const hours= (date.getHours() - 3).toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    const time = `${hours}:${minutes}`;
+
+    return {
+      date: date,
+      time: time,
+    }; 
+  }  
+
+  React.useEffect(() => {
+    if (lessonToEdit) {
+
+      const { date, time } = parseDate(lessonToEdit.start);
+
+      if (lessonToEdit.type === 'theory') {
+        setLessonType('theory');      
+        setTheoryFormData({
+          date: date,
+          time: time,
+          lesson_title: lessonToEdit.lesson_title,
+          duration: lessonToEdit.duration,
+          group: {
+            id: lessonToEdit.group_id ,
+            name: lessonToEdit.group ,
+          },
+          filial_id: lessonToEdit.filial_id?.toString() || '1',
+          is_online: lessonToEdit.is_online || false,
+        });
+
+
+      } else if (lessonToEdit.type === 'practical') {
+        setLessonType('practical');
+        setPracticalFormData({
+          date: date,
+          time: time,
+          lesson_title: lessonToEdit.lesson_title ,
+          duration: lessonToEdit.duration,
+          filial_id: lessonToEdit.filial_id?.toString() || '1',
+          car: lessonToEdit.car || '',
+          location: lessonToEdit.location || '',
+        });
+      }
+    }
+  }, [lessonToEdit]);
+
+
+  function isLessonOverlapping(
+    start: string,  // формат: "2025-06-02T08:00:00"
+    duration: string // формат: "HH:mm:ss"
+  ): boolean {
+    const startDate = new Date(start);
+    const [h, m, s] = duration.split(':').map(Number);
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + (h || 0));
+    endDate.setMinutes(endDate.getMinutes() + (m || 0));
+    endDate.setSeconds(endDate.getSeconds() + (s || 0));
+
+    return events.some(event => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      return startDate < eventEnd && endDate > eventStart;
+    });
+  }
+
+  const handleSubmitTheory = async (e: React.FormEvent) => {
     e.preventDefault();
-    onCreatePracticalLesson(practicalFormData);
-    onClose();
+    if (!validateNotPastDate(theoryFormData.date)) return;
+    if (!validateTimeRange(theoryFormData.time)) return;
+
+    const data = getTheoryLessonData(theoryFormData);
+
+    if (isLessonOverlapping(data.start_time, data.duration  )) {
+      toast({
+        title: "Перетин занять",
+        description: "Нове заняття перетинається з уже існуючим у розкладі!",
+        variant: "destructive",
+        duration: 3000
+      });
+      return;
+    }
+
+
+    try {
+      console.log("Submitting theory lesson data:", data);
+
+      if (isEditMode && lessonToEdit?.type === 'theory') {
+        await updateTheoryLesson(Number(lessonToEdit.id), data);
+        toast({
+          title: "Успіх",
+          description: "Теоретичне заняття оновлено!",
+          variant: "default",
+          duration: 2000
+        });
+
+        onUpdateTheoryLesson({ ...theoryFormData, time: data.start_time, id: lessonToEdit.id });
+      } else {
+        const res = await createTheoryLesson(data);
+        toast({
+          title: "Успіх",
+          description: "Теоретичне заняття створено!",
+          variant: "default",
+          duration: 2000
+        });
+        onCreateTheoryLesson({ ...theoryFormData, time: data.start_time, id: res.id });
+      }
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Помилка",
+        description: "Не вдалося зберегти заняття.",
+        variant: "destructive",
+        duration: 2000
+      });
+    }
   };
+
+  const handleSubmitPractical = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateNotPastDate(practicalFormData.date)) return;
+    if (!validateTimeRange(practicalFormData.time)) return;
+
+    const data = getPracticalLessonData(practicalFormData);
+  
+    if (isLessonOverlapping(data.start_time, data.duration  )) {
+      toast({
+        title: "Перетин занять",
+        description: "Нове заняття перетинається з уже існуючим у розкладі!",
+        variant: "destructive",
+        duration: 3000
+      });
+      return;
+    }
+
+    try {
+      if (isEditMode && lessonToEdit?.type === 'practical') {
+        await updatePracticalLesson(Number(lessonToEdit.id), data);
+        toast({
+          title: "Успіх",
+          description: "Практичне заняття оновлено!",
+          variant: "default",
+          duration: 2000
+        });
+        onUpdatePracticalLesson({ ...practicalFormData, time: data.start_time, id: lessonToEdit.id });
+      } else {
+        const res = await createPracticalLesson(data);
+        toast({
+          title: "Успіх",
+          description: "Практичне заняття створено!",
+          variant: "default",
+          duration: 2000
+        });
+        onCreatePracticalLesson({...practicalFormData, time: data.start_time, id: res.id});
+      }
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Помилка",
+        description: "Не вдалося зберегти заняття.",
+        variant: "destructive",
+        duration: 2000
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (groups.length > 0) {
+      setTheoryFormData(prev => ({
+        ...prev,
+        group: { id: groups[0].id, name: groups[0].name }
+      }));
+    }
+  }, [groups]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-secondary border-gray-700 text-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Lesson</DialogTitle>
+          <DialogTitle>Додати нове заняття</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Schedule a new lesson for students
+            Заплануйте нове заняття для студентів
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="theory" value={lessonType} onValueChange={setLessonType}>
           <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-            <TabsTrigger value="theory">Theory Lesson</TabsTrigger>
-            <TabsTrigger value="practical">Practical Lesson</TabsTrigger>
+            <TabsTrigger value="theory">Теоретичне заняття</TabsTrigger>
+            <TabsTrigger value="practical">Практичне заняття</TabsTrigger>
           </TabsList>
           
           <TabsContent value="theory">
             <form onSubmit={handleSubmitTheory} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="theory-title">Lesson Title</Label>
-                <Input
-                  id="theory-title"
-                  placeholder="e.g., Introduction to Road Signs"
-                  value={theoryFormData.title}
-                  onChange={(e) => handleTheoryFormChange('title', e.target.value)}
-                  className="bg-gray-800 border-gray-700"
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Group field moved up */}
-                <div className="space-y-2">
-                  <Label htmlFor="theory-group">Group</Label>
-                  <Select
-                    value={theoryFormData.group_id}
-                    onValueChange={(value) => handleTheoryFormChange('group_id', value)}
-                  >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select group" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="A1">Group A1</SelectItem>
-                      <SelectItem value="A2">Group A2</SelectItem>
-                      <SelectItem value="B1">Group B1</SelectItem>
-                      <SelectItem value="B2">Group B2</SelectItem>
-                      <SelectItem value="C1">Group C1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="theory-branch">Branch</Label>
-                  <Select
-                    value={theoryFormData.filial_id}
-                    onValueChange={(value) => handleTheoryFormChange('filial_id', value)}
-                  >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select branch" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="1">Main Branch</SelectItem>
-                      <SelectItem value="2">North Branch</SelectItem>
-                      <SelectItem value="3">East Branch</SelectItem>
-                      <SelectItem value="4">West Branch</SelectItem>
-                      <SelectItem value="5">South Branch</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
+                <Label htmlFor="theory-title">Назва заняття</Label>
+                  <Input
+                    id="theory-title"
+                    placeholder="Напр., Вступ до дорожніх знаків"
+                    value={theoryFormData.lesson_title || ''}
+                    onChange={(e) => handleTheoryFormChange('lesson_title', e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                    required
+                  />
+              </div>           
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="theory-date">Date</Label>
+                  <Label htmlFor="theory-date">Дата</Label>
                   <DateDropdowns
                     year={parseInt(theoryYear)}
                     month={parseInt(theoryMonth)}
@@ -316,7 +446,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="theory-time">Time</Label>
+                  <Label htmlFor="theory-time">Час</Label>
                   <Input
                     id="theory-time"
                     type="time"
@@ -328,22 +458,72 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                 </div>
               </div>
               
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Group field moved up */}
+                <div className="space-y-2">
+                  <Label htmlFor="theory-group">Група</Label>
+                  <Select
+                    value={theoryFormData.group?.id || ''}
+                    onValueChange={(value) => {
+                      const selectedGroup = groups.find(g => g.id.toString() === value.toString());
+                      setTheoryFormData(prev => ({
+                        ...prev,
+                        group: selectedGroup ? { id: selectedGroup.id, name: selectedGroup.name } : { id: '', name: '' }
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectValue placeholder="Оберіть групу" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-700">
+                      {groups.length === 0 ? (
+                        <SelectItem value="" disabled>Групи не знайдено</SelectItem>
+                      ) : (
+                        groups.map(group => (
+                          <SelectItem key={group.id} value={group.id}>
+                            {group.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="theory-branch">Філія</Label>
+                  <Select
+                    value={theoryFormData.filial_id}
+                    onValueChange={(value) => handleTheoryFormChange('filial_id', value)}
+                  >
+                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectValue placeholder="Оберіть філію" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectItem value="1">Філія 1</SelectItem>
+                      <SelectItem value="2">Філія 2</SelectItem>
+                      <SelectItem value="3">Філія 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="theory-duration">Duration (minutes)</Label>
+                  <Label htmlFor="theory-duration">Тривалість</Label>
                   <Select
                     value={theoryFormData.duration}
                     onValueChange={(value) => handleTheoryFormChange('duration', value)}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select duration" />
+                    <SelectTrigger className="bg-gray-800 border-gray-700" id="theory-duration">
+                      <SelectValue placeholder="Оберіть тривалість" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="45">45 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                      <SelectItem value="90">1.5 hours</SelectItem>
-                      <SelectItem value="120">2 hours</SelectItem>
+                      <SelectItem value="00:30:00">30 хвилин</SelectItem>
+                      <SelectItem value="00:45:00">45 хвилин</SelectItem>
+                      <SelectItem value="01:00:00">1 година</SelectItem>
+                      <SelectItem value="01:30:00">1,5 години</SelectItem>
+                      <SelectItem value="02:00:00">2 години</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -354,26 +534,39 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                     checked={theoryFormData.is_online}
                     onCheckedChange={(checked) => handleTheoryFormChange('is_online', checked)}
                   />
-                  <Label htmlFor="theory-online">Online Lesson</Label>
+                  <Label htmlFor="theory-online">Онлайн заняття</Label>
                 </div>
               </div>
               
-              <DialogFooter>
+              {/* DialogFooter */}
+              <div className="flex justify-between mt-6 gap-2">
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  Скасувати
                 </Button>
                 <Button type="submit" className="bg-lider-red hover:bg-red-700">
-                  Create Theory Lesson
+                  {isEditMode ? 'Зберегти зміни' : 'Створити заняття'}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </TabsContent>
           
           <TabsContent value="practical">
             <form onSubmit={handleSubmitPractical} className="space-y-4 py-4">
+              {/* Додаємо поле назва заняття */}
+              <div className="space-y-2">
+                <Label htmlFor="practical-title">Назва заняття</Label>
+                <Input
+                  id="practical-title"
+                  placeholder="Напр., Перше водіння"
+                  value={practicalFormData.lesson_title || ''}
+                  onChange={(e) => handlePracticalFormChange('lesson_title', e.target.value)}
+                  className="bg-gray-800 border-gray-700"
+                  required
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="practical-date">Date</Label>
+                  <Label htmlFor="practical-date">Дата</Label>
                   <DateDropdowns
                     year={parseInt(practicalYear)}
                     month={parseInt(practicalMonth)}
@@ -385,7 +578,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="practical-time">Time</Label>
+                  <Label htmlFor="practical-time">Час</Label>
                   <Input
                     id="practical-time"
                     type="time"
@@ -399,92 +592,80 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="practical-duration">Duration (minutes)</Label>
+                  <Label htmlFor="practical-duration">Тривалість (хвилин)</Label>
                   <Select
                     value={practicalFormData.duration}
                     onValueChange={(value) => handlePracticalFormChange('duration', value)}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select duration" />
+                    <SelectTrigger className="bg-gray-800 border-gray-700" id="theory-duration">
+                      <SelectValue placeholder="Оберіть тривалість" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="45">45 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                      <SelectItem value="90">1.5 hours</SelectItem>
-                      <SelectItem value="120">2 hours</SelectItem>
+                      <SelectItem value="00:30:00">30 хвилин</SelectItem>
+                      <SelectItem value="00:45:00">45 хвилин</SelectItem>
+                      <SelectItem value="01:00:00">1 година</SelectItem>
+                      <SelectItem value="01:30:00">1,5 години</SelectItem>
+                      <SelectItem value="02:00:00">2 години</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="practical-branch">Branch</Label>
+                  <Label htmlFor="practical-branch">Філія</Label>
                   <Select
                     value={practicalFormData.filial_id}
                     onValueChange={(value) => handlePracticalFormChange('filial_id', value)}
                   >
                     <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select branch" />
+                      <SelectValue placeholder="Оберіть філію" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="1">Main Branch</SelectItem>
-                      <SelectItem value="2">North Branch</SelectItem>
-                      <SelectItem value="3">East Branch</SelectItem>
-                      <SelectItem value="4">West Branch</SelectItem>
-                      <SelectItem value="5">South Branch</SelectItem>
+                      <SelectItem value="1">Філія 1</SelectItem>
+                      <SelectItem value="2">Філія 2</SelectItem>
+                      <SelectItem value="3">Філія 3</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Автомобіль */}
                 <div className="space-y-2">
-                  <Label htmlFor="practical-car">Vehicle</Label>
-                  <Select
+                  <Label htmlFor="practical-car">Автомобіль</Label>
+                  <Input
+                    id="practical-car"
+                    type="text"
                     value={practicalFormData.car}
-                    onValueChange={(value) => handlePracticalFormChange('car', value)}
-                  >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select vehicle" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
-                      {CARS.map(car => (
-                        <SelectItem key={car.value} value={car.value}>
-                          {car.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => handlePracticalFormChange('car', e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                    placeholder="Вкажіть автомобіль"
+                    required
+                  />
                 </div>
-                
+                {/* Локація */}
                 <div className="space-y-2">
-                  <Label htmlFor="practical-location">Location</Label>
-                  <Select
+                  <Label htmlFor="practical-location">Локація</Label>
+                  <Input
+                    id="practical-location"
+                    type="text"
                     value={practicalFormData.location}
-                    onValueChange={(value) => handlePracticalFormChange('location', value)}
-                  >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
-                      {LOCATIONS.map(loc => (
-                        <SelectItem key={loc.value} value={loc.value}>
-                          {loc.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => handlePracticalFormChange('location', e.target.value)}
+                    className="bg-gray-800 border-gray-700"
+                    placeholder="Вкажіть локацію"
+                    required
+                  />
                 </div>
               </div>
               
-              <DialogFooter>
+              {/* Замість DialogFooter */}
+              <div className="flex justify-between mt-6 gap-2">
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  Скасувати
                 </Button>
                 <Button type="submit" className="bg-lider-red hover:bg-red-700">
-                  Create Practical Lesson
+                  {isEditMode ? 'Зберегти зміни' : 'Створити заняття'}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </TabsContent>
         </Tabs>

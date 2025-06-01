@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Calendar, Users, BookOpen, FileText } from 'lucide-react';
 
-import { UserData } from '@/types/user';
+import { UserData } from '@/types/userInterface';
 
 interface InstructorDashboardProps {
   user: UserData;
@@ -25,22 +25,7 @@ const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ user }) => {
       
       {/* Два блоки поруч: Керування розкладом та Мої групи */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar size={20} className="mr-2 text-lider-red" />
-              Керування розкладом
-            </CardTitle>
-            <CardDescription>
-              Додавайте, редагуйте або переглядайте свої заняття.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="bg-lider-red hover:bg-red-700 w-full">
-              <Link to="/schedule">Перейти до розкладу</Link>
-            </Button>
-          </CardContent>
-        </Card>
+       
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -54,6 +39,22 @@ const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ user }) => {
           <CardContent>
             <Button asChild className="bg-lider-red hover:bg-red-700 w-full">
               <Link to="/instructor/groups">Перейти до груп</Link>
+            </Button>
+          </CardContent>
+        </Card>
+         <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Calendar size={20} className="mr-2 text-lider-red" />
+              Керування розкладом
+            </CardTitle>
+            <CardDescription>
+              Додавайте, редагуйте або переглядайте свої заняття.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="bg-lider-red hover:bg-red-700 w-full">
+              <Link to="/instructor/schedule">Перейти до розкладу</Link>
             </Button>
           </CardContent>
         </Card>
@@ -109,7 +110,7 @@ const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ user }) => {
           </CardHeader>
           <CardContent>
             <Button asChild className="bg-lider-red hover:bg-red-700 w-full">
-              <Link to="/instructor/materials">Перейти до матеріалів</Link>
+              <Link to="/materials">Перейти до матеріалів</Link>
             </Button>
           </CardContent>
         </Card>

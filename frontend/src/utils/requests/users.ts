@@ -1,6 +1,6 @@
 import { UserData } from "@/store/authStore"
-import apiInstance from "./axios"
-import { USER_URL } from "./constant"
+import apiInstance from "../axios"
+import { USER_URL } from "../constant"
 
 function mapUserFromApi(apiUser: any): any {
   return {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -9,53 +9,30 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { ChevronDown, ChevronUp, Search, Users } from 'lucide-react';
+import { fetchMyGroups } from '@/utils/requests/groups';
 
-// Мок-дані для груп інструктора
-const mockGroups = [
-  {
-    id: '1',
-    name: 'Ранкова група B1',
-    schedule: 'Пн, Ср, Пт - 09:00-11:00',
-    totalStudents: 8,
-    students: [
-      { id: '1', name: 'Іван Студент', email: 'john@example.com', progress: 65, notes: 'Добрий прогрес з паркування' },
-      { id: '2', name: 'Марія Гарсія', email: 'maria@example.com', progress: 80, notes: 'Відмінні теоретичні знання' },
-      { id: '3', name: 'Давид Вілсон', email: 'david@example.com', progress: 40, notes: 'Потрібно більше практики у місті' },
-      { id: '4', name: 'Емілі Джонсон', email: 'emily@example.com', progress: 75, notes: 'Готова до фінального тесту' },
-    ]
-  },
-  {
-    id: '2',
-    name: 'Вечірня група B2',
-    schedule: 'Вт, Чт - 18:00-20:00',
-    totalStudents: 6,
-    students: [
-      { id: '5', name: 'Михайло Сміт', email: 'michael@example.com', progress: 50, notes: 'Покращує навички їзди трасою' },
-      { id: '6', name: 'Софія Родрігес', email: 'sofia@example.com', progress: 90, notes: 'Готова до іспиту' },
-      { id: '7', name: 'Джеймс Браун', email: 'james@example.com', progress: 30, notes: 'Щойно почав практичні заняття' },
-    ]
-  },
-  {
-    id: '3',
-    name: 'Група вихідного дня A1',
-    schedule: 'Сб, Нд - 10:00-14:00',
-    totalStudents: 5,
-    students: [
-      { id: '8', name: 'Анна Кім', email: 'anna@example.com', progress: 70, notes: 'Добрі навички керування мотоциклом' },
-      { id: '9', name: 'Роберт Чен', email: 'robert@example.com', progress: 85, notes: 'Відмінно виконує технічні маневри' },
-      { id: '10', name: 'Емма Девіс', email: 'emma@example.com', progress: 55, notes: 'Працює над балансом і контролем' },
-      { id: '11', name: 'Томас Вайт', email: 'thomas@example.com', progress: 20, notes: 'Щойно почав базове навчання' },
-      { id: '12', name: 'Олівія Мартін', email: 'olivia@example.com', progress: 60, notes: 'Поступове покращення' },
-    ]
-  },
-];
 
 const InstructorGroups = () => {
   const authState = useAuthStore();
   const navigate = useNavigate();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [groups, setGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const data = await fetchMyGroups();
+        setGroups(data);
+      } catch (e) {
+        setGroups([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadGroups();
+  }, []);
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev =>
@@ -66,15 +43,15 @@ const InstructorGroups = () => {
   };
 
   // Фільтрація груп за пошуком
-  const filteredGroups = mockGroups.filter(group => {
+  const filteredGroups = groups.filter(group => {
     const matchesGroupName = group.name.toLowerCase().includes(searchTerm.toLowerCase());
     const hasMatchingStudent = group.students.some(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase())
+      `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
     return matchesGroupName || hasMatchingStudent;
   });
 
-  if (authState.isLoading) {
+  if (authState.isLoading || loading) {
     return (
       <PageLayout>
         <div className="container-custom py-20 text-center">
@@ -96,10 +73,10 @@ const InstructorGroups = () => {
           <Card className="bg-gradient-to-r from-secondary to-black border-gray-800 mb-8">
             <CardContent className="pt-6">
               <h1 className="text-3xl font-bold mb-2">
-                Мої групи та учні
+                Мої групи та студенти
               </h1>
               <p className="text-gray-400">
-                Керуйте та відстежуйте свої групи та учнів
+                Керуйте та відстежуйте свої групи та студентів
               </p>
             </CardContent>
           </Card>
@@ -129,7 +106,7 @@ const InstructorGroups = () => {
                           <Users size={20} className="mr-2 text-lider-red" />
                           {group.name}
                         </CardTitle>
-                        <CardDescription className="mt-1">{group.schedule}</CardDescription>
+                        <CardDescription className="mt-1">{group.description}</CardDescription>
                       </div>
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
@@ -150,31 +127,33 @@ const InstructorGroups = () => {
                       <Table>
                         <TableHeader>
                           <TableRow className="border-gray-700">
-                            <TableHead>Ім'я</TableHead>
-                            <TableHead>Контакт</TableHead>
-                            <TableHead>Прогрес</TableHead>
-                            <TableHead>Нотатки</TableHead>
-                            <TableHead className="w-[120px]">Дії</TableHead>
+                            <TableHead className="w-[140px]">Прізвище</TableHead>
+                            <TableHead className="w-[120px]">Ім'я</TableHead>
+                            <TableHead className="w-[200px]">Електронна пошта</TableHead>
+                            <TableHead className="w-[150px]">Тип навчання</TableHead>
+                            <TableHead className="w-[180px]">Прогрес</TableHead>
+                            <TableHead className="w-[110px]"></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {group.students
                             .filter(student =>
                               searchTerm === '' ||
-                              student.name.toLowerCase().includes(searchTerm.toLowerCase())
+                              `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
                             )
                             .map(student => (
                               <TableRow key={student.id} className="border-gray-700">
-                                <TableCell className="font-medium">{student.name}</TableCell>
+                                <TableCell className="font-medium">{student.last_name}</TableCell>
+                                <TableCell className="font-medium">{student.first_name}</TableCell>
                                 <TableCell>{student.email}</TableCell>
+                                <TableCell className="text-sm text-gray-400">
+                                  {student.type}
+                                </TableCell>
                                 <TableCell>
                                   <div className="flex items-center space-x-3">
-                                    <Progress value={student.progress} className="h-2" />
+                                    <Progress value={student.progress} className="h-2 min-w-[100px]" />
                                     <span className="text-sm">{student.progress}%</span>
                                   </div>
-                                </TableCell>
-                                <TableCell className="text-sm text-gray-400">
-                                  {student.notes}
                                 </TableCell>
                                 <TableCell>
                                   <Button

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from routers.auth_user_service import auth, profiles, users, groups, payment_callback
+from routers.auth_user_service import auth, profile, users, groups, payment_callback
 from routers.learning_service import pdr, tickets, testing
 from routers.shedule_service import admin_schedule, teacher_schedule, student_schedule
 from routers.payment_service import payments
@@ -34,7 +34,7 @@ Auth User Service
 """
 app.include_router(auth.router, prefix="/api/v1/auth")
 
-app.include_router(profiles.router, prefix="/api/v1/profiles")
+app.include_router(profile.router, prefix="/api/v1/profile")
 
 app.include_router(users.router, prefix="/api/v1/users")
 

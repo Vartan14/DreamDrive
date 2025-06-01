@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
-import { login } from '../../utils/auth';
+import { login } from '../../utils/requests/auth';
 
 
 const Login = () => {

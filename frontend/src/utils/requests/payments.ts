@@ -1,5 +1,6 @@
-import { PAYMENT_URL, PAYMENT_STATUS_URL } from "./constant";
-import apiInstance from "./axios";
+import { PAYMENT_URL, PAYMENT_STATUS_URL, PAYMENT_HISTORY_URL } from "../constant";
+import apiInstance from "../axios";
+import { Payment } from "@/types/paymentInterface";
 
 /**
  * Sends a POST request to the backend to create a payment.
@@ -32,6 +33,18 @@ export async function getPaymentStatus() {
         return response.data;
     } catch (error: any) {
         console.error('Error while getting payment status:', error);
+        throw error;
+    }
+}
+
+
+
+export async function getPaymentHistory():  Promise<Payment[]>{
+    try {
+        const response = await apiInstance.get(`${PAYMENT_HISTORY_URL}`);
+        return response.data;
+    } catch (error: any) {
+        console.error('Error while getting payment history:', error);
         throw error;
     }
 }

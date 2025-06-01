@@ -1,5 +1,5 @@
-import { useAuthStore } from "../store/authStore";
-import axios from "./axios";
+import { useAuthStore } from "../../store/authStore";
+import axios from "../axios";
 import type { AxiosResponse } from "axios";
 import { jwtDecode } from "jwt-decode";
 import Cookie from "js-cookie";
@@ -9,7 +9,7 @@ import {
   REFRESH_URL,
   REGISTER_URL,
   PASSWORD_RESET_URL,
-} from "./constant";
+} from "../constant";
 
 export interface DecodedUser {
   exp: number;

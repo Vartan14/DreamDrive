@@ -16,3 +16,10 @@ class PaymentStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ["liqpay_order_id", "amount", "status", "created_at", "description"]
+
+
+class PaymentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ["liqpay_order_id", "amount", "status", "created_at", "description"]
+        read_only_fields = ["liqpay_order_id", "amount", "status", "created_at", "description"]
