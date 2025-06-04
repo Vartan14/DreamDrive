@@ -39,13 +39,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
 
     if (!user) {
       console.log("ProtectedRoute: user not found, redirecting to login");
-      navigate("/dashboard");
+      navigate("/login");
       return;
     }
 
     if (!user.role || !allowedRoles.includes(user.role)) {
       console.log(`ProtectedRoute: user role "${user.role}" not allowed, redirecting to login`);
-      navigate("/dashboard");
+      navigate("/login");
     }
   }, [loading, user, allowedRoles, navigate]);
 

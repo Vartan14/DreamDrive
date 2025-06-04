@@ -9,86 +9,12 @@ import { Calendar as CalendarIcon, Clock, AlertCircle, User, MapPin, Car, Plus, 
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/components/ui/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { fetchAvailablePracticeLessons } from '@/utils/requests/schedule/studentRequests';
 import { LessonEvent } from '@/types/scheduleInterface';
-
-// Mock schedule data
-const initialScheduleData = {
-  upcomingLessons: [
-    {
-      id: 1,
-      date: '2023-05-23',
-      time: '14:00',
-      duration: 90,
-      type: 'Practical',
-      instructor: 'Alex Instructor',
-      location: 'Main Branch - 123 Main Street'
-    },
-    {
-      id: 2,
-      date: '2023-06-12',
-      time: '10:00',
-      duration: 60,
-      type: 'Theory',
-      instructor: 'Maria Teacher',
-      location: 'Main Branch - 123 Main Street'
-    }
-  ],
-};
-
-// Mock data for available practical lessons
-const mockAvailablePracticalLessons = [
-  {
-    id: 41,
-    start_time: "2025-06-02T09:00:00Z",
-    duration: "01:00:00",
-    status: "available",
-    filial_id: 1,
-    instructor_id: 8,
-    instructor_name: "John Smith",
-    location: "Вулиця Шевченка, 15",
-    car: "Toyota Corolla, AA1234BX",
-    student_id: null,
-    created_at: "2025-05-13T12:30:00Z"
-  },
-  {
-    id: 42,
-    start_time: "2025-06-02T11:00:00Z",
-    duration: "01:30:00",
-    status: "available",
-    filial_id: 1,
-    instructor_id: 9,
-    instructor_name: "Alex Insturctor",
-    location: "Main Branch - 123 Main Street",
-    car: "Honda Civic, AA5678CE",
-    student_id: null,
-    created_at: "2025-05-13T12:35:00Z"
-  },
-  {
-    id: 43,
-    start_time: "2025-05-17T14:00:00Z",
-    duration: "01:00:00",
-    status: "available",
-    filial_id: 2,
-    instructor_id: 7,
-    instructor_name: "Michael Brown",
-    location: "Проспект Свободи, 42",
-    car: "Volkswagen Golf, AA9012DF",
-    student_id: null,
-    created_at: "2025-05-13T12:40:00Z"
-  }
-];
-
-// Vehicle options
-
+import {bookPracticeLesson, fetchStudentLessons} from '@/utils/requests/schedule/studentRequests';
+import { formatEventDate, formatTime, formatDuration } from '@/utils/formatDate';
+import { filials } from '@/types/filials';
+import { LessonDetailModal } from '@/components/schedule/LessonDetailModal';
 
 
 const Schedule = () => {
@@ -101,50 +27,38 @@ const Schedule = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isBooking, setIsBooking] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-  const [scheduleData, setScheduleData] = useState(initialScheduleData);
+  const [scheduleData, setScheduleData] = useState<LessonEvent[]>([]);
   const [availablePracticalLessons, setAvailablePracticalLessons] = useState<LessonEvent[]>([]);
   const [isLessonDetailsOpen, setIsLessonDetailsOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
 
-  // Add Availability dialog state
-  const [isAddAvailabilityOpen, setIsAddAvailabilityOpen] = useState(false);
-  const [newAvailability, setNewAvailability] = useState({
-    title: '',
-    date: new Date(),
-    time: '09:00',
-    duration: '90',
-    vehicle: 'toyota-corolla',
-    location: 'Main Branch - 123 Main Street',
-    type: 'Practical'
-  });
-
-  // Booked lesson state
   const [hasBookedLesson, setHasBookedLesson] = useState(false);
 
-  // If not authenticated, redirect to login
   React.useEffect(() => {
-    if (!authState.isLoading && !user) {
-      navigate('/login', { state: { from: location.pathname } });
-    }
-  }, [authState.isLoading, user, navigate]);
-
+    checkBookedLessons();
+  }, [scheduleData]);
   // Fetch available practical lessons when date changes
   React.useEffect(() => {
-    setHasBookedLesson(false); // Скидаємо при зміні дати
     if (date && user?.role === 'student' && isSubscribed) {
-      fetchLessonsFromApi(date);
+      fetchAvailablePractice(date);
     }
   }, [date, user?.role, isSubscribed]);
 
-  // Функція для отримання занять з API
-  const fetchLessonsFromApi = async (selectedDate: Date) => {
+  // Функція для отримання слотів з API
+  const fetchAvailablePractice = async (selectedDate: Date) => {
     try {
       const allLessons = await fetchAvailablePracticeLessons();
-      const selectedDateStr = selectedDate.toISOString().split('T')[0];
+
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const selectedDateStr = nextDay.toISOString().split('T')[0];
+      console.log('Selected date:', selectedDateStr);
+
       const filteredLessons = allLessons.filter(lesson => {
         const lessonDate = new Date(lesson.start).toISOString().split('T')[0];
         return lessonDate === selectedDateStr;
       });
+
       setAvailablePracticalLessons(filteredLessons);
     } catch (error) {
       toast({
@@ -155,22 +69,35 @@ const Schedule = () => {
     }
   };
 
-  const handleBookLesson = (slotId: number) => {
+  const handleBookLesson = async (slotId: number) => {
     setIsBooking(true);
     setSelectedSlot(slotId);
 
-    setTimeout(() => {
-      setIsBooking(false);
+    try {
+      await bookPracticeLesson(slotId.toString());
+
       setSelectedSlot(null);
       setAvailablePracticalLessons(prevLessons =>
         prevLessons.filter(lesson => lesson.id.toString() !== slotId.toString())
       );
-      setHasBookedLesson(true); // Позначаємо, що студент забронював урок
+      setHasBookedLesson(true);
+
+      // Оновлюємо розклад студента після бронювання
+      await fetchStudentData();
+
       toast({
         title: 'Заняття заброньовано',
         description: 'Ваше практичне заняття успішно заброньовано.',
       });
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: 'Помилка',
+        description: 'Не вдалося забронювати заняття.',
+        variant: 'destructive',
+      });
+    } finally {
+        setIsBooking(false);
+    }
   };
   
   const handleViewLessonDetails = (lesson) => {
@@ -178,32 +105,41 @@ const Schedule = () => {
     setIsLessonDetailsOpen(true);
   };
 
-  // Format time from ISO string
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  };
 
-  // Форматує тривалість (HH:MM:SS) у години українською
-  const formatDuration = (duration: string) => {
-    const [hours, minutes] = duration.split(':').map(Number);
-    if (hours > 0 && minutes === 0) {
-      return hours === 1 ? '1 година' : `${hours} години`;
+
+  React.useEffect(() => {
+    if (user?.role === 'student' && isSubscribed) {
+      fetchStudentData();
     }
-    if (hours > 0 && minutes > 0) {
-      return `${hours},${minutes / 60 * 10} години`.replace('.0', '');
+  }, [user?.role, isSubscribed]);
+
+  const checkBookedLessons = async () => {
+    if (scheduleData.some(lesson => lesson.type === 'practical')) {
+      setHasBookedLesson(true);
+    } else {
+      setHasBookedLesson(false);
     }
-    if (minutes > 0) {
-      return `${minutes} хвилин`;
+  }
+
+
+  React.useEffect(() => {
+    checkBookedLessons();
+  }, [date]);
+
+  const fetchStudentData = async () => {
+    try {
+      const studentLessons: LessonEvent[] = await fetchStudentLessons();
+      setScheduleData(studentLessons);
+
+    } catch (error) {
+      console.error('Failed to fetch student lessons:', error);
+      toast({
+        title: 'Помилка',
+        description: 'Не вдалося отримати розклад студента.',
+        variant: 'destructive',
+      });
     }
-    return '';
   };
-
-
-  const handleManageScheduleClick = () => {
-    navigate('/instructor/schedule');
-  };
-
 
   if (authState.isLoading) {
     return (
@@ -262,11 +198,8 @@ const Schedule = () => {
                 <CalendarIcon size={18} className="mr-2 text-lider-red" />
                 Оберіть дату
               </CardTitle>
-              <CardDescription>
-                {user?.role === 'student' 
-                  ? "Оберіть дату, щоб побачити доступні заняття" 
-                  : "Ваш календар розкладу"
-                }
+              <CardDescription>              
+                  Оберіть дату, щоб побачити доступні для бронювання заняття                                  
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -280,15 +213,7 @@ const Schedule = () => {
                   day_today: "bg-gray-800 text-white",
                 }}
               />
-              
-              {user?.role === 'instructor' && (
-                <Button 
-                  className="w-full mt-4 bg-lider-red hover:bg-red-700"
-                  onClick={handleManageScheduleClick}
-                >
-                  Manage Schedule
-                </Button>
-              )}
+                        
             </CardContent>
           </Card>
 
@@ -385,16 +310,16 @@ const Schedule = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <CalendarIcon size={18} className="mr-2 text-lider-red" />
-              {user?.role === 'student' ? 'Ваші майбутні заняття' : 'Ваші майбутні заняття з учнями'}
+              Ваші майбутні заняття
             </CardTitle>
             <CardDescription>
-              {user?.role === 'student' ? 'Заплановані заняття для вас' : 'Заплановані заняття з вашими учнями'}
+              Заплановані заняття для вас
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {scheduleData.upcomingLessons.length > 0 ? (
+            {scheduleData.length > 0 ? (
               <div className="space-y-4">
-                {scheduleData.upcomingLessons.map(lesson => (
+                {scheduleData.map(lesson => (
                   <div 
                     key={lesson.id}
                     className="p-4 rounded-lg border border-gray-700 bg-gray-800/30"
@@ -402,24 +327,32 @@ const Schedule = () => {
                     <div className="flex flex-col md:flex-row justify-between">
                       <div>
                         <div className="font-medium flex items-center">
-                          {lesson.type === 'Practical' ? (
-                            <span className="inline-block w-2 h-2 bg-lider-red rounded-full mr-2"></span>
-                          ) : (
-                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                          )}
-                          {lesson.type} Lesson - {lesson.duration} minutes
+                        
+                            {lesson.type === 'theory' ? (
+                                <div className="w-3 h-3 rounded-full bg-blue-500 mr-3"></div>
+                              ) : (
+                                <div
+                                  className="w-3 h-3 rounded-full mr-3 bg-orange-500"
+                                    
+                                      
+                                
+                                ></div>
+                              )}
+                          {lesson.type === 'theory' ? 'Теоретичне заняття' : 'Практичне заняття'} - {formatDuration(lesson.duration)} 
+                        
+                          
                         </div>
                         <div className="text-sm text-gray-400 mt-1">
                           <CalendarIcon size={14} className="inline mr-1" />
-                          {new Date(lesson.date).toLocaleDateString()} at {lesson.time}
+                          {formatEventDate(lesson.start)} • {formatTime(lesson.start)}
                         </div>
                         <div className="text-sm text-gray-400 mt-1">
                           <User size={14} className="inline mr-1" />
-                          {lesson.instructor}
+                          {lesson.instructor_name}
                         </div>
                         <div className="text-sm text-gray-400 mt-1">
                           <MapPin size={14} className="inline mr-1" />
-                          {lesson.location}
+                          {filials.find(f => f.id === lesson.filial_id.toString())?.name || 'Невідомо'}
                         </div>
                       </div>
                       
@@ -427,7 +360,7 @@ const Schedule = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="border-blue-500/30 text-blue-500 hover:bg-blue-950/20"
+                          className="border-lider-red/30 text-lider-red hover:bg-red-950/20"
                           onClick={() => handleViewLessonDetails(lesson)}
                         >
                           Детальніше
@@ -449,62 +382,16 @@ const Schedule = () => {
       </div>
 
       {/* Lesson Details Modal */}
-      <Dialog open={isLessonDetailsOpen} onOpenChange={setIsLessonDetailsOpen}>
-        <DialogContent className="bg-secondary border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle>Lesson Details</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              {selectedLesson?.type} lesson information
-            </DialogDescription>
-          </DialogHeader>
-          {selectedLesson && (
-            <div className="space-y-4 py-2">
-              <div>
-                <h3 className="font-medium text-white">{selectedLesson.type} Lesson</h3>
-                <p className="text-sm text-gray-400">Duration: {selectedLesson.duration} minutes</p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2">
-                <div className="flex items-start">
-                  <CalendarIcon className="mr-2 h-4 w-4 mt-0.5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium">Date & Time</p>
-                    <p className="text-sm text-gray-400">
-                      {new Date(selectedLesson.date).toLocaleDateString()} at {selectedLesson.time}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <User className="mr-2 h-4 w-4 mt-0.5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium">Instructor</p>
-                    <p className="text-sm text-gray-400">{selectedLesson.instructor}</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <MapPin className="mr-2 h-4 w-4 mt-0.5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium">Location</p>
-                    <p className="text-sm text-gray-400">{selectedLesson.location}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsLessonDetailsOpen(false)}
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-
-    </PageLayout>
-  );
+      <LessonDetailModal
+        isOpen={isLessonDetailsOpen}
+        onClose={() => setIsLessonDetailsOpen(false)}
+        lesson={selectedLesson}
+        canEdit={false}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />      
+          </PageLayout>
+        );
 };
 
 export default Schedule;

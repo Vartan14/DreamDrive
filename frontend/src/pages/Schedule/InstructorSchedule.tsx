@@ -33,8 +33,8 @@ import { LessonEvent, CreateTheoryLessonData, CreatePracticalLessonData, Practic
 import { co } from 'node_modules/@fullcalendar/core/internal-common';
 import Lessons from '../Deprecated/Lessons';
 import ukLocale from '@fullcalendar/core/locales/uk';
-
-
+import { formatEventDate, formatEventTime } from '@/utils/formatDate';
+import '@/styles/calendar.css';
 
 const InstructorSchedule = () => {
   //const navigate = useNavigate();
@@ -283,42 +283,28 @@ const InstructorSchedule = () => {
         throw new Error("Unknown lesson type");
       }
 
-      // Оновлюємо події після видалення
-      //await fetchEvents();
-      setEvents(events.filter(e => e.id !== selectedLesson.id));
+      setEvents(events =>
+        events.map(e =>
+          e.id === selectedLesson.id
+            ? { ...e, status: 'cancelled' }
+            : e
+        )
+      );
       setIsDetailModalOpen(false);
 
       toast({
-        title: "Заняття видалено",
-        description: `${selectedLesson.type === 'theory' ? 'Теоретичне' : 'Практичне'} заняття було видалено.`
+        title: "Заняття відмінено",
+        description: `${selectedLesson.type === 'theory' ? 'Теоретичне' : 'Практичне'} заняття було відмінено.`
       });
     } catch (error) {
       toast({
         title: "Помилка",
-        description: "Не вдалося видалити заняття.",
+        description: "Не вдалося відмінити заняття.",
         variant: "destructive"
       });
     }
   };
 
-  // Format date for display
-  const formatEventDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('uk-UA', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  // Format time for display
-  const formatEventTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('uk-UA', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
 
   if (authState.isLoading || loading) {
     return (
@@ -364,115 +350,18 @@ const InstructorSchedule = () => {
                       </Select>
                     </div>
                     
-                    <Button 
+                    {/* <Button 
                       className="bg-lider-red hover:bg-red-700"
                       onClick={handleCreateLessonClick}
                     >
                       <Plus size={16} className="mr-2" />
                       Додати заняття
-                    </Button>
+                    </Button> */}
                   </div>
                   
                   {/* Calendar */}
                   <div className="p-4 calendar-container">
-                    <style>
-                      {`
-                      .calendar-container {
-                        /* Збільшено висоту календаря */
-                        height: calc(80vh - 200px);
-                        min-height: 600px;
-                      }
-                      .calendar-container .fc {
-                        height: 100%;
-                      }
-                      .theory-event {
-                        background-color: rgba(37, 99, 235, 0.15);
-                        border-color: rgba(37, 99, 235, 0.5);
-                        color: #e2e8f0;
-                      }
-                      .practical-available-event {
-                        background-color: rgba(5, 150, 105, 0.15);
-                        border-color: rgba(5, 150, 105, 0.5);
-                        color: #e2e8f0;
-                      }
-                      .practical-booked-event {
-                        background-color: rgba(251, 146, 60, 0.18) !important; /* оранжевий */
-                        border-color: rgba(251, 146, 60, 0.5) !important;
-                        color: #e2e8f0;
-                      }
-                      .fc-timegrid-event-harness {
-                        margin-left: 2px !important;
-                        margin-right: 2px !important;
-                      }
-                      .fc .fc-button-primary {
-                        background-color: #1f2937;
-                        border-color: #374151;
-                        color: #e5e7eb;
-                      }
-                      .fc .fc-button-primary:hover {
-                        background-color: #374151;
-                      }
-                      .fc .fc-button-primary:disabled {
-                        background-color: #1f2937;
-                        opacity: 0.7;
-                      }
-                      .fc .fc-button-primary:not(:disabled).fc-button-active, 
-                      .fc .fc-button-primary:not(:disabled):active {
-                        background-color: #ea384c;
-                        border-color: #ea384c;
-                      }
-                      .fc-theme-standard .fc-scrollgrid {
-                        border-color: #374151;
-                      }
-                      .fc-theme-standard td, .fc-theme-standard th {
-                        border-color: #374151;
-                      }
-                      .fc .fc-daygrid-day.fc-day-today,
-                      .fc .fc-timegrid-col.fc-day-today {
-                        background-color: rgba(234, 56, 76, 0.1);
-                      }
-                      .fc-col-header-cell {
-                        background-color: #1f2937;
-                      }
-                      .fc-timegrid-slot, .fc-timegrid-axis {
-                        height: 48px !important;
-                      }
-                      .fc-timegrid-axis-cushion.fc-scrollgrid-shrink-cushion,
-                      .fc-timegrid-axis-frame.fc-scrollgrid-shrink,
-                      .fc-scrollgrid-sync-inner.fc-timegrid-axis {
-                        display: none;
-                      }
-                      .fc .fc-timegrid-slots {
-                        border-top: 0;
-                      }
-                      .fc-timegrid-event .fc-event-time {
-                        font-size: 1rem !important;      /* такий самий як .font-medium (title) */
-                        font-weight: 500 !important;     /* відповідає класу font-medium */
-                        color: #fff !important;
-                      }
-                      @media (max-width: 640px) {
-                        .calendar-container {
-                          height: calc(90vh - 180px);
-                          min-height: 400px;
-                        }
-                        .fc-toolbar.fc-header-toolbar {
-                          flex-direction: column;
-                          gap: 0.5rem;
-                        }
-                        .fc .fc-toolbar-title {
-                          font-size: 1.2rem;
-                        }
-                        .fc-header-toolbar .fc-toolbar-chunk {
-                          display: flex;
-                          justify-content: center;
-                        }
-                        .fc-timeGridWeek-button {
-                          display: none !important;
-                        }
-                      }
-                      `}
-                    </style>
-                    
+                                   
                     <FullCalendar 
                       timeZone="Europe/Kyiv"
                       plugins={[timeGridPlugin, interactionPlugin]}
@@ -499,19 +388,21 @@ const InstructorSchedule = () => {
                       eventClick={handleEventClick}
                       dateClick={handleDateClick}
                       eventClassNames={(info) => {
-                    const eventData = filteredEvents.find(e => e.id.toString() === info.event.id.toString());
-                        if (eventData?.type === 'theory') {
-                          return 'theory-event';
+                      const eventData = filteredEvents.find(e => e.id.toString() === info.event.id.toString());
+                      if (eventData.status === 'cancelled') {
+                        return 'cancelled-event';
+                      }
+                      if (eventData?.type === 'theory') {
+                        return 'theory-event';
+                      }
+                      else if (eventData?.type === 'practical') {
+                        if (eventData.status === 'booked') {
+                          return 'practical-booked-event';  
                         }
-                        else if (eventData?.type === 'practical') {
-                          if (eventData.status === 'booked') {
-                            return 'practical-booked-event';  
-                          }
-                          else {
-                            return 'practical-available-event';  
-                          }
+                        else {
+                          return 'practical-available-event';  
                         }
-                        
+                      }
                       }}
                       height="100%"
                       allDaySlot={false}

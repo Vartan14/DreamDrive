@@ -7,3 +7,4 @@ dj-rest-auth[with-social]==6.0.0
 django-allauth==0.61.1
 django-jazzmin==2.6.1
 django-cors-headers==4.7.0
+django-phonenumber-field[phonenumbers]

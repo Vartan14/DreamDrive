@@ -37,4 +37,29 @@ export const getGroup = async (group_id) => {
   }
 };
 
+export const fetchAllGroups = async (onlyNames: boolean) => {
+  try {
+    const response = await apiInstance.get(ADMIN_GROUPS);
+
+      if (onlyNames) {
+        return response.data.map(group => ({
+            id: group.id,
+            name: group.name.trim(),
+        }));
+
+    }  else {
+        console.log("Fetched groups:", response.data);
+
+        return response.data;
+    }
+    
+    return response.data
+
+  } catch (error) {
+    console.error("Error while fetching groups", error);
+    throw error;
+  }
+};
+
+
 

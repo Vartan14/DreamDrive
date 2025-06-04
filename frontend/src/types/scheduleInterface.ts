@@ -50,6 +50,7 @@ export interface CreateTheoryLessonData {
     id: string;
     name: string;
   };
+  
 }
 
 export interface CreatePracticalLessonData {
@@ -70,6 +71,8 @@ export interface TheoryLesson {
   group_id: string;
   filial_id: string;
   is_online: boolean;
+  instructor_name: string;
+
 }
 
 export interface PracticalLesson {
@@ -79,6 +82,8 @@ export interface PracticalLesson {
   filial_id: string;
   car: string;
   location: string;
+  instructor_name: string;
+
 }
 
 

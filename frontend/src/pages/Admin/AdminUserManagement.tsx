@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import PageLayout from '@/components/layout/PageLayout';
 import PageHeader from '@/components/ui/PageHeader';
 import AddUserForm from '@/components/admin/AddUserForm';
@@ -40,7 +40,7 @@ const MOCK_INSTRUCTORS = [
 
 const AdminUserManagement = () => {
   const navigate = useNavigate();
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();
   const [users, setUsers] = useState([...MOCK_STUDENTS]);
   const [instructors, setInstructors] = useState([...MOCK_INSTRUCTORS]);
   const [activeTab, setActiveTab] = useState('students');

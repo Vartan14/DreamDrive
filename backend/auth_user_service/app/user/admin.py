@@ -20,7 +20,9 @@ class UserAdmin(BaseUserAdmin):
                 'password',
                 'first_name',
                 'last_name',
-                'role')
+                'role',
+                'phone',
+                'about_me')
         }),
         (_('Permissions'), {
             'fields': (

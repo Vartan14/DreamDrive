@@ -15,6 +15,9 @@ async def proxy_to_teacher_theory_lessons(request: Request, path: str, user=Depe
     body = await request.body()
     url = f"{settings.SCHEDULE_SERVICE_URL}/{request_prefix}/theory-lessons/{path}"
     headers = prepare_forward_headers(request, user)
+    query_params = request.url.query
+    if query_params:
+        url = f"{url}?{query_params}"
 
     return await proxy_request(
         method=request.method,
@@ -29,7 +32,9 @@ async def proxy_to_teacher_practical_lessons(request: Request, path: str, user=D
     body = await request.body()
     url = f"{settings.SCHEDULE_SERVICE_URL}/{request_prefix}/practice-lessons/{path}"
     headers = prepare_forward_headers(request, user)
-
+    query_params = request.url.query
+    if query_params:
+        url = f"{url}?{query_params}"
     return await proxy_request(
         method=request.method,
         url=url,

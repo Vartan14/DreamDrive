@@ -9,7 +9,7 @@ class RoadVisualGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RoadVisualGroup
-        fields = ['type', 'number', 'title']
+        fields = ['id', 'type', 'number', 'title']
 
 
 class RoadVisualElementSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class RuleSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RuleSection
-        fields = ['number', 'title']
+        fields = ['id', 'number', 'title']
 
 
 class TrafficRuleSerializer(serializers.ModelSerializer):
@@ -41,4 +41,4 @@ class TrafficRuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrafficRule
-        fields = ['rule_id', 'text', 'section_number']
+        fields = ['id','rule_id', 'text', 'section_number']

@@ -6,6 +6,10 @@ from django.db import models
 class TheoryLesson(models.Model):
     """Theoretical lessons. Instructors add students"""
     title = models.CharField(max_length=100, default='Theoretical lesson')
+    status = models.CharField(max_length=10, choices=[
+        ('active', 'Active'),
+        ('cancelled', 'Cancelled')
+    ], default='active')
     start_time = models.DateTimeField()
     duration = models.DurationField(default=timedelta(minutes=60))
 
@@ -13,6 +17,7 @@ class TheoryLesson(models.Model):
     filial_id = models.IntegerField()
 
     instructor_id = models.IntegerField()
+    instructor_name = models.CharField(max_length=255, default='')
     group_id = models.IntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -37,6 +42,7 @@ class PracticeLesson(models.Model):
     filial_id = models.IntegerField()
 
     instructor_id = models.IntegerField()
+    instructor_name = models.CharField(max_length=255, default='')
 
     location = models.CharField(max_length=255)
     car = models.CharField(max_length=100, null=True, blank=True)

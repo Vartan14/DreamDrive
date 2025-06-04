@@ -4,9 +4,10 @@ import apiInstance from "@/utils/axios";
 import { ex } from "node_modules/@fullcalendar/core/internal-common";
 
 
-export const createTheoryLesson = async (data: TheoryLesson) => {
+export const createTheoryLesson = async (data: TheoryLesson, instructor_id: string = '') => {
   try {
-    const response = await apiInstance.post(THEORY_LESSON_URL, data);
+    const params = instructor_id ? { instructor_id } : {};
+    const response = await apiInstance.post(THEORY_LESSON_URL, data, { params });
     return response.data;
   } catch (error) {
     console.error("Error creating theory lesson:", error);
@@ -14,9 +15,10 @@ export const createTheoryLesson = async (data: TheoryLesson) => {
   }
 };
 
-export const createPracticalLesson = async (data: PracticalLesson) => {
+export const createPracticalLesson = async (data: PracticalLesson, instructor_id: string = '') => {
   try {
-    const response = await apiInstance.post(PRACTICAL_LESSON_URL, data);
+    const params = instructor_id ? { instructor_id } : {};
+    const response = await apiInstance.post(PRACTICAL_LESSON_URL, data, { params });
     return response.data;
   } catch (error) {
     console.error("Error creating practical lesson:", error);
@@ -46,7 +48,9 @@ export const updatePracticalLesson = async (id: number, data: PracticalLesson) =
 
 export const deleteTheoryLesson = async (id: number) => {
   try {
-    const response = await apiInstance.delete(`${THEORY_LESSON_URL}${id}/`);
+    const response = await apiInstance.patch(`${THEORY_LESSON_URL}${id}/`,
+      {params: {status: 'cancelled'}}
+    );
     return response.data;
   } catch (error) {
     console.error("Error deleting theory lesson:", error);
@@ -56,7 +60,7 @@ export const deleteTheoryLesson = async (id: number) => {
 
 export const deletePracticalLesson = async (id: number) => {
   try {
-    const response = await apiInstance.delete(`${PRACTICAL_LESSON_URL}${id}/`);
+    const response = await apiInstance.patch(`${PRACTICAL_LESSON_URL}${id}/`);
     return response.data;
   } catch (error) {
     console.error("Error deleting practical lesson:", error);

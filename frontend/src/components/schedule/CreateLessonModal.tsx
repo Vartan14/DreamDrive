@@ -8,9 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { CreateTheoryLessonData, CreatePracticalLessonData, PracticalLesson, TheoryLesson, LessonEvent } from '@/types/scheduleInterface';
 import {DateDropdowns} from '@/components/schedule/DateDropdowns';
-import { fetchMyGroups } from '@/utils/requests/groups';
+import { fetchMyGroups, fetchAllGroups} from '@/utils/requests/groups';
 import { toast } from "@/components/ui/use-toast";
 import { createTheoryLesson, createPracticalLesson, updateTheoryLesson, updatePracticalLesson } from '@/utils/requests/schedule/lessons';
+import { useAuthStore } from '@/store/authStore';
+import { C } from 'node_modules/@fullcalendar/core/internal-common';
+import { TeacherResource } from '@/utils/requests/teachers';
 
 
 
@@ -25,6 +28,8 @@ interface CreateLessonModalProps {
   useCompactDatePicker?: boolean;
   lessonToEdit: LessonEvent; 
   events: LessonEvent[]; 
+  isAdmin?: boolean; 
+  instructor?: TeacherResource; 
 }
 
 export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({ 
@@ -37,8 +42,11 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   onUpdatePracticalLesson,
   useCompactDatePicker = false,
   lessonToEdit,
-  events
+  events,
+  isAdmin = false,
+  instructor
 }) => {
+  const authStore = useAuthStore();
   const [lessonType, setLessonType] = useState('theory');
   const [groups, setGroups] = useState<{ id: string; name: string }[]>([]);
 
@@ -115,8 +123,14 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   
   React.useEffect(() => {
     const fetchGroups = async () => {
-      try {
-        const groups = await fetchMyGroups(true);
+      try { 
+        let groups = [];     
+        if (isAdmin) {
+          groups = await fetchAllGroups(true); 
+        }
+        else {  
+          groups = await fetchMyGroups(true);
+        }
         setGroups(groups); // збережіть у стані
       } catch (error) {
         console.error("Error fetching groups:", error);
@@ -196,6 +210,8 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     const month = pad(form.date.getMonth() + 1);
     const day = pad(form.date.getDate());
     const start_time = `${year}-${month}-${day}T${form.time}`;
+     
+
     return {
       title: form.lesson_title,
       start_time,
@@ -203,6 +219,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       filial_id: form.filial_id.toString(),
       group_id: form.group.id.toString(),
       is_online: form.is_online,
+      instructor_name: instructor?.name|| (authStore.user?.first_name + ' ' + authStore.user?.last_name) || '',
     };
   };
 
@@ -219,6 +236,8 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       filial_id: form.filial_id.toString(),
       car: form.car,
       location: form.location,
+      instructor_name: instructor?.name || (authStore.user?.first_name + ' ' + authStore.user?.last_name) || '',
+      
     };
   };
 
@@ -286,9 +305,17 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     endDate.setMinutes(endDate.getMinutes() + (m || 0));
     endDate.setSeconds(endDate.getSeconds() + (s || 0));
 
+    console.log(`Перевірка перетину: ${startDate} - ${endDate}`);
+
     return events.some(event => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+      const eventStart = new Date(event.start.replace('Z', ''));
+      const eventEnd = new Date(event.end.replace('Z', ''));
+      
+      const flag = startDate < eventEnd && endDate > eventStart;
+      if (flag) {
+
+        console.log(`Перетин знайдено: ${eventStart} - ${eventEnd}`);
+      } 
       return startDate < eventEnd && endDate > eventStart;
     });
   }
@@ -325,7 +352,13 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
 
         onUpdateTheoryLesson({ ...theoryFormData, time: data.start_time, id: lessonToEdit.id });
       } else {
-        const res = await createTheoryLesson(data);
+        let res = {id: '0'};
+        if (isAdmin){
+          res = await createTheoryLesson(data, instructor.id);
+        }
+        else {
+          res = await createTheoryLesson(data);
+        }
         toast({
           title: "Успіх",
           description: "Теоретичне заняття створено!",
@@ -373,7 +406,13 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
         });
         onUpdatePracticalLesson({ ...practicalFormData, time: data.start_time, id: lessonToEdit.id });
       } else {
-        const res = await createPracticalLesson(data);
+        let res = {id: "0"};
+        if (isAdmin){ 
+          res = await createPracticalLesson(data, instructor.id);
+        }
+        else {
+          res = await createPracticalLesson(data);
+        }
         toast({
           title: "Успіх",
           description: "Практичне заняття створено!",

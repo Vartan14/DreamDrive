@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/store/authStore';
 import PageLayout from '@/components/layout/PageLayout';
 import PageHeader from '@/components/ui/PageHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -12,7 +12,7 @@ import TestsQuestionsTab from '@/components/admin/TestsQuestionsTab';
 import TestsCustomTab from '@/components/admin/TestsCustomTab';
 
 const AdminTestManagement = () => {
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();  
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('tests');

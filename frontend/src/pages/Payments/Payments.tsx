@@ -235,53 +235,53 @@ const Payments = () => {
                   <CreditCard size={32} className="mx-auto mb-3 opacity-50" />
                   <p>Завантаження...</p>
                 </div>
-              ) : paymentHistory.length > 0 ? (
+              ) : paymentHistory.filter(payment => payment.status === 'success' || payment.status === 'error').length > 0 ? (
                 <div className="space-y-4">
-                  {paymentHistory.map(payment => (
-                    <div 
-                      key={payment.liqpay_order_id}
-                      className="p-4 rounded-lg border border-gray-700 bg-gray-800/30"
-                    >
-                      <div className="flex flex-col md:flex-row justify-between">
-                        <div>
-                          <div className="font-medium">{payment.description}</div>
-                          <div className="text-sm text-gray-400">
-                            <Calendar size={14} className="inline mr-1" />
-                            {/* Виправлена обробка дати */}
-                            {(() => {
-                              // Додаємо перевірку та fallback
-                              const date = payment.created_at ? new Date(payment.created_at) : null;
-                              if (date && !isNaN(date.getTime())) {
-                                // Формат: 29.05.2025, 21:48
-                                return date.toLocaleDateString('uk-UA', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric',
-                                }) + ', ' + date.toLocaleTimeString('uk-UA', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: false,
-                                });
-                              }
-                              return 'Невідома дата';
-                            })()}
+                  {paymentHistory
+                    .filter(payment => payment.status === 'success' || payment.status === 'error')
+                    .map(payment => (
+                      <div 
+                        key={payment.liqpay_order_id}
+                        className="p-4 rounded-lg border border-gray-700 bg-gray-800/30"
+                      >
+                        <div className="flex flex-col md:flex-row justify-between">
+                          <div>
+                            <div className="font-medium">{payment.description}</div>
+                            <div className="text-sm text-gray-400">
+                              <Calendar size={14} className="inline mr-1" />
+                              {/* Виправлена обробка дати */}
+                              {(() => {
+                                const date = payment.created_at ? new Date(payment.created_at) : null;
+                                if (date && !isNaN(date.getTime())) {
+                                  return date.toLocaleDateString('uk-UA', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                  }) + ', ' + date.toLocaleTimeString('uk-UA', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                  });
+                                }
+                                return 'Невідома дата';
+                              })()}
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-3 md:mt-0 text-right">
-                          <div className="font-medium">{payment.amount} грн</div>
-                          <div className={`text-xs ${
-                            payment.status === 'success' ? 'text-green-500' : payment.status === 'pending' ? 'text-yellow-500' : 'text-red-500'
-                          }`}>
-                            {payment.status === 'success'
-                              ? 'Завершено'
-                              : payment.status === 'pending'
-                              ? 'В очікуванні'
-                              : 'Помилка'}
+                          <div className="mt-3 md:mt-0 text-right">
+                            <div className="font-medium">{payment.amount} грн</div>
+                            <div className={`text-xs ${
+                              payment.status === 'success' ? 'text-green-500' : payment.status === 'pending' ? 'text-yellow-500' : 'text-red-500'
+                            }`}>
+                              {payment.status === 'success'
+                                ? 'Завершено'
+                                : payment.status === 'pending'
+                                ? 'В очікуванні'
+                                : 'Помилка'}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-400">

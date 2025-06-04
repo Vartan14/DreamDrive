@@ -23,6 +23,8 @@ class ReadOnlyTheoryLessonViewSet(viewsets.ReadOnlyModelViewSet):
         group_id = self.request.headers.get('X-User-Group-Id')
         if not group_id:
             raise ValueError("Header 'X-User-Group-Id' is required.")
+
+
         queryset = TheoryLesson.objects.filter(group_id=group_id)
         return queryset
 
@@ -80,15 +82,22 @@ class TheoryLessonViewSet(viewsets.ModelViewSet):
     """Teacher CRUD for theory lessons"""
     queryset = TheoryLesson.objects.none()
     serializer_class = TheoryLessonSerializer
-    permission_classes = [RolePermission.allow_roles('teacher')]
+    permission_classes = [RolePermission.allow_roles('teacher', 'admin')]
 
     def get_queryset(self):
-        instructor_id = self.request.user.id
-        queryset = TheoryLesson.objects.filter(instructor_id=instructor_id)
-        return queryset
+        if self.request.user.role != 'admin':
+            instructor_id = self.request.user.id
+            return TheoryLesson.objects.filter(instructor_id=instructor_id)
+        else:
+            return TheoryLesson.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(instructor_id=self.request.user.id)
+        instructor_id = self.request.query_params.get('instructor_id')
+
+        if not instructor_id:
+            serializer.save(instructor_id=self.request.user.id)
+        else:
+            serializer.save(instructor_id=instructor_id)
 
 
 @extend_schema(tags=["Teacher"])
@@ -96,15 +105,22 @@ class PracticeLessonViewSet(viewsets.ModelViewSet):
     """Teacher CRUD for practice lessons"""
     queryset = PracticeLesson.objects.none()
     serializer_class = PracticeLessonSerializer
-    permission_classes = [RolePermission.allow_roles('teacher')]
+    permission_classes = [RolePermission.allow_roles('teacher', 'admin')]
 
     def get_queryset(self):
-        instructor_id = self.request.user.id
-        queryset = PracticeLesson.objects.filter(instructor_id=instructor_id)
-        return queryset
+        if self.request.user.role != 'admin':
+            instructor_id = self.request.user.id
+            return PracticeLesson.objects.filter(instructor_id=instructor_id)
+        else:
+            return PracticeLesson.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(status='available', instructor_id=self.request.user.id)
+        instructor_id = self.request.query_params.get('instructor_id')
+
+        if not instructor_id:
+            serializer.save(instructor_id=self.request.user.id)
+        else:
+            serializer.save(instructor_id=instructor_id)
 
 
 @extend_schema(tags=["Teacher"])
@@ -153,27 +169,16 @@ Admin views
 @extend_schema(tags=["Admin"])
 class AdminScheduleView(generics.ListAPIView):
     permission_classes = [RolePermission.allow_roles('admin')]
-    serializer_class = LessonCalendarSerializer
+    serializer_class = LessonTimelineSerializer
 
     def get_queryset(self):
-        date = self.request.query_params.get('date')
+        instructor_id = self.request.query_params.get('instructor_id')
 
-        if not date:
-            raise ValueError("Date parameter is required.")
+        if not instructor_id:
+            raise ValueError("Instructor parameter is required.")
 
-        start = f"{date}T00:00:00"
-        end = f"{date}T23:59:59"
-
-        try:
-            theory = TheoryLesson.objects.filter(start_time__range=[start, end])
-            practice = PracticeLesson.objects.filter(start_time__range=[start, end])
-        except ValueError:
-            raise ValueError("Invalid date format. Expected format is yyyy-mm-dd.")
-
-        return list(theory) + list(practice)
-
-    def list(self, request, *args, **kwargs):
-        try:
-            return super().list(request, *args, **kwargs)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return sorted(
+            list(TheoryLesson.objects.filter(instructor_id=instructor_id)) +
+            list(PracticeLesson.objects.filter(instructor_id=instructor_id)),
+            key=lambda x: x.start_time
+        )

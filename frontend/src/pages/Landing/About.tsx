@@ -5,122 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { Calendar, Users, Award, Car, Star, FileCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Timeline data
-// const timelineEvents = [
-//   {
-//     year: "2005",
-//     title: "Foundation",
-//     description: "LIDER Driving School was founded with just 2 instructors and 1 vehicle."
-//   },
-//   {
-//     year: "2008",
-//     title: "First Branch Expansion",
-//     description: "Opened our second branch and expanded to 10 instructors and 5 vehicles."
-//   },
-//   {
-//     year: "2012",
-//     title: "Motorcycle Courses",
-//     description: "Added Category A training with specialized motorcycle instructors."
-//   },
-//   {
-//     year: "2015",
-//     title: "City-wide Recognition",
-//     description: "Awarded 'Best Driving School in Kyiv' for highest pass rates."
-//   },
-//   {
-//     year: "2018",
-//     title: "Nationwide Expansion",
-//     description: "Expanded to 5 major cities across Ukraine with over 50 instructors."
-//   },
-//   {
-//     year: "2021",
-//     title: "Advanced Training Center",
-//     description: "Opened state-of-the-art training facility with simulators and modern classrooms."
-//   },
-//   {
-//     year: "2023",
-//     title: "Digital Transformation",
-//     description: "Launched our interactive learning platform and scheduling app for students."
-//   }
-// ];
 
-// // Stats
-// const stats = [
-//   {
-//     value: "35,000+",
-//     label: "Successful Students",
-//     icon: <Users size={28} className="text-lider-red" />
-//   },
-//   {
-//     value: "95%",
-//     label: "First-Time Pass Rate",
-//     icon: <Award size={28} className="text-lider-red" />
-//   },
-//   {
-//     value: "6",
-//     label: "Branches Nationwide",
-//     icon: <MapPin size={28} className="text-lider-red" />
-//   },
-//   {
-//     value: "70+",
-//     label: "Professional Instructors",
-//     icon: <Star size={28} className="text-lider-red" />
-//   }
-// ];
-
-// // Instructor profiles
-// const instructors = [
-//   {
-//     name: "Oleksandr Petrenko",
-//     title: "Chief Instructor, Category B",
-//     experience: "15 years",
-//     photo: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
-//     description: "Oleksandr leads our car training program with over 15 years of experience and a perfect safety record."
-//   },
-//   {
-//     name: "Natalia Kovalenko",
-//     title: "Senior Instructor, Category A",
-//     experience: "10 years",
-//     photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
-//     description: "Natalia specializes in motorcycle training and has helped over 1,000 students get their Category A license."
-//   },
-//   {
-//     name: "Volodymyr Shevchenko",
-//     title: "Senior Instructor, Category C",
-//     experience: "12 years",
-//     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
-//     description: "Volodymyr is our truck driving expert with extensive knowledge of commercial vehicle regulations."
-//   },
-//   {
-//     name: "Iryna Kovalchuk",
-//     title: "Theory Instructor",
-//     experience: "8 years",
-//     photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
-//     description: "Iryna makes learning traffic rules engaging and has developed our comprehensive theory curriculum."
-//   }
-// ];
-
-// // Fleet items
-// const fleetItems = [
-//   {
-//     type: "Cars",
-//     description: "Modern compact vehicles ideal for beginners, equipped with dual controls for safety.",
-//     models: "Toyota Yaris, Volkswagen Golf, Skoda Fabia",
-//     image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
-//   },
-//   {
-//     type: "Motorcycles",
-//     description: "Range of motorcycles from light 125cc to full-power bikes for all license categories.",
-//     models: "Honda CB125R, Yamaha MT-07, Kawasaki Z650",
-//     image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
-//   },
-//   {
-//     type: "Trucks",
-//     description: "Commercial vehicles for Category C training with modern safety features.",
-//     models: "Mercedes Atego, MAN TGX, DAF CF",
-//     image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
-//   }
-// ];
 
 // Хронологія подій
 const timelineEvents = [
@@ -191,28 +76,28 @@ const instructors = [
     name: "Олександр Петренко",
     title: "Головний інструктор, категорія B",
     experience: "15 років",
-    photo: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    photo: "https://images.unsplash.com/flagged/photo-1577973371814-78b04a45ce5e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     description: "Олександр очолює програму навчання водіїв категорії B, має понад 15 років досвіду та бездоганну репутацію з безпеки."
   },
   {
-    name: "Наталія Коваленко",
-    title: "Старший інструктор, категорія A",
+    name: "Вадим Коваленко",
+    title: "Старший інструктор,\nкатегорії A, B",
     experience: "10 років",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
-    description: "Наталія спеціалізується на підготовці мотоциклістів і допомогла понад 1000 учням отримати посвідчення категорії A."
+    photo: "https://images.unsplash.com/photo-1608034809014-73e7d72f25b4?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Вадим спеціалізується на підготовці мотоциклістів і допомогла понад 1000 учням отримати посвідчення категорії A, B."
   },
   {
     name: "Володимир Шевченко",
     title: "Старший інструктор, категорія C",
     experience: "12 років",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    photo: "https://plus.unsplash.com/premium_photo-1661374927471-24a90ebd5737?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     description: "Володимир — експерт із водіння вантажівок, добре обізнаний із правилами комерційних перевезень."
   },
   {
     name: "Ірина Ковальчук",
-    title: "Інструктор з теорії",
+    title: "Вчитель з теорії",
     experience: "8 років",
-    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    photo: "https://images.unsplash.com/photo-1659353215553-044993dcdd39?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     description: "Ірина робить вивчення ПДР цікавим і розробила нашу повну програму теоретичного навчання."
   }
 ];
@@ -223,7 +108,7 @@ const fleetItems = [
     type: "Автомобілі",
     description: "Сучасні компактні авто, ідеальні для новачків, оснащені дубльованими педалями безпеки.",
     models: "Toyota Yaris, Volkswagen Golf, Skoda Fabia",
-    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+    image: "https://kyiv.hsc.gov.ua/wp-content/uploads/2023/03/1-13.jpg"
   },
   {
     type: "Мотоцикли",
@@ -360,7 +245,7 @@ const About = () => {
                   <div className="text-lider-red font-medium text-sm mb-2">{instructor.title}</div>
                   <div className="flex items-center text-sm text-gray-400 mb-3">
                     <Calendar size={14} className="mr-1" />
-                    {instructor.experience} experience
+                    {instructor.experience} досвіду
                   </div>
                   <p className="text-gray-300 text-sm">{instructor.description}</p>
                 </div>

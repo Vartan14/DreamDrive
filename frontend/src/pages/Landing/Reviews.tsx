@@ -7,7 +7,7 @@ import { Star, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
-// Sample review data
+
 // const reviewsData = [
 //   {
 //     id: '1',
@@ -110,7 +110,6 @@ const reviewsData = [
     date: '15 березня 2023',
     rating: 5,
     text: 'Я дуже хвилювалася щодо навчання водінню, але мій інструктор Олександр був терплячим і підтримуючим. Склала іспит з першого разу! Щиро рекомендую LIDER всім, хто хоче якісного навчання.',
-    photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
     licenseCategory: 'Категорія B'
   },
   {
@@ -119,7 +118,6 @@ const reviewsData = [
     date: '24 лютого 2023',
     rating: 5,
     text: 'Чудова програма навчання мотоциклістів! Інструктори справді приділяють увагу безпеці та роблять заняття цікавими. Тренувальний майданчик ідеально підходить для відпрацювання всіх маневрів.',
-    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
     licenseCategory: 'Категорія A'
   },
   {
@@ -128,7 +126,6 @@ const reviewsData = [
     date: '5 квітня 2023',
     rating: 4,
     text: 'Мені потрібно було швидко отримати водійські права на вантажівку для нової роботи. LIDER допомогли завдяки інтенсивному курсу. Теорія була всеохоплююча, а практичні заняття — дуже змістовні.',
-    photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
     licenseCategory: 'Категорія C'
   },
   {
@@ -137,7 +134,6 @@ const reviewsData = [
     date: '17 січня 2023',
     rating: 5,
     text: 'Після двох невдалих спроб скласти іспит в іншій школі, я перейшов до LIDER і склав із першого разу! Інструктори тут дійсно знають, як підготувати до реальних умов іспиту.',
-    photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
     licenseCategory: 'Категорія B'
   },
   {
@@ -162,7 +158,6 @@ const reviewsData = [
     date: '20 квітня 2023',
     rating: 5,
     text: 'Навчання водінню вантажівки стало справжнім викликом, але інструктори в LIDER допомогли мені впоратися. Вони подають матеріал поетапно й дуже підтримують.',
-    photoUrl: 'https://images.unsplash.com/photo-1499887142886-791eca5918cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80',
     licenseCategory: 'Категорія C'
   },
   {
@@ -179,20 +174,20 @@ const reviewsData = [
 const successStories = [
   {
     name: 'Марія Іванова',
-    photo: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+    photo: 'https://plus.unsplash.com/premium_photo-1694557636097-5969bae91ba8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     quote: '"Від повного новачка до впевненого водія всього за 6 тижнів! Дякую LIDER за чудових інструкторів та підтримку."',
     achievement: 'Склала категорію B з першого разу'
   },
   {
     name: 'Тарас Кравчук',
-    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+    photo: 'https://images.unsplash.com/photo-1600486913747-55e5470d6f40?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     quote: '"Після труднощів з утриманням рівноваги на мотоциклі, покроковий підхід LIDER допоміг мені опанувати всі навички для категорії A."',
     achievement: 'Любитель мотоциклів'
   },
   {
     name: 'Юлія Пономаренко',
-    photo: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-    quote: '"Курс водіння вантажівки був комплексним і практичним. Тепер маю хорошу роботу професійного водія завдяки LIDER."',
+    photo: 'https://images.unsplash.com/photo-1591960623720-f54713aa2e43?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    quote: '"Курс водіння вантажівки був комплексним і практичним. Тепер маю хорошу роботу професійного водія завдяки DREAM."',
     achievement: 'Комерційний водій'
   }
 ];

@@ -10,21 +10,22 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', read_only=True)
     last_name = serializers.CharField(source='user.last_name', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
-    type = serializers.SerializerMethodField()
+    #type = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentProfile
-        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'progress', 'type']
+        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'progress', 'type',
+                  'group_id']
 
 
-    def get_type(self, obj):
-        student_type = obj.type
-        if student_type == 'theory':
-            return 'Теорія'
-        elif student_type == 'practice':
-            return 'Практика'
-        else:
-            return 'Теорія та практика'
+    # def get_type(self, obj):
+    #     student_type = obj.type
+    #     if student_type == 'theory':
+    #         return 'Теорія'
+    #     elif student_type == 'practice':
+    #         return 'Практика'
+    #     else:
+    #         return 'Теорія та практика'
 
 
     def validate_user(self, value):

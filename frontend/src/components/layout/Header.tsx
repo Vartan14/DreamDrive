@@ -88,7 +88,7 @@ const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-black/95 border-gray-800 text-white" align="end">
                 <div className="p-2 text-center border-b border-gray-800">
-                  <p className="font-medium">{user.first_name}</p>
+                  <p className="font-medium">{user.first_name} {user.last_name}</p>
                   <p className="text-xs text-gray-400">{user.email}</p>
                 </div>
                 <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
@@ -296,21 +296,21 @@ const Header = () => {
                 
                 {user.role === 'admin' && (
                   <>
-                    <hr className="border-gray-800 my-2" />
-                    <Link to="/admin/users" className="block py-2 px-3 hover:bg-gray-800 rounded">
-                      Управління користувачами
-                    </Link>
                     <Link to="/admin/payments" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Огляд платежів
                     </Link>
                     <Link to="/admin/schedule" className="block py-2 px-3 hover:bg-gray-800 rounded">
-                      Огляд розкладу
+                      Управління розкладом
                     </Link>
-                    <Link to="/admin/branches" className="block py-2 px-3 hover:bg-gray-800 rounded">
-                      Управління філіями
+                    <hr className="border-gray-800 my-2" />
+                    <Link to="/admin/users" className="block py-2 px-3 hover:bg-gray-800 rounded">
+                      Управління користувачами
                     </Link>
                     <Link to="/materials" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Управління матеріалами
+                    </Link>                   
+                    <Link to="/admin/branches" className="block py-2 px-3 hover:bg-gray-800 rounded">
+                      Управління філіями
                     </Link>
                     <Link to="/admin/reviews" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Управління відгуками

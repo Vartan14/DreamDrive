@@ -33,7 +33,7 @@ import InstructorSchedule from "./pages/Schedule/InstructorSchedule";
 // New Admin Management Pages
 import AdminUserManagement from "./pages/Admin/AdminUserManagement";
 import AdminGroupManagement from "./pages/Admin/AdminGroupManagement";
-import AdminScheduleManagement from "./pages/Schedule/AdminScheduleManagement";
+import AdminSchedule from "./pages/Schedule/AdminSchedule";
 import AdminBranchManagement from "./pages/Admin/AdminBranchManagement";
 import AdminPaymentOverview from "./pages/Admin/AdminPaymentOverview";
 import AdminReviewManagement from "./pages/Admin/AdminReviewManagement";
@@ -52,7 +52,6 @@ import TestHistory from "./pages/Tests/TestHistory";
 import TestResultDetails from "./pages/Tests/TestResultDetails";
 
 // Lessons Management
-import Lessons from "./pages/Deprecated/Lessons";
 import AuthProvider from "./providers/AuthProvider";
 import PaymentForm from "./pages/Payments/PaymentForm";
 import PaymentResult from "./pages/Payments/PaymentResult";
@@ -115,14 +114,14 @@ const App = () => (
             <Route path="/instructor/schedule" element={<InstructorSchedule />} />
             
             {/* Admin Management Routes */}
-            {/* <Route path="/admin/users" element={<AdminUserManagement />} />
+            <Route path="/admin/users" element={<AdminUserManagement />} />
             <Route path="/admin/groups" element={<AdminGroupManagement />} />
-            <Route path="/admin/schedule" element={<AdminScheduleManagement />} />
+            <Route path="/admin/schedule" element={<AdminSchedule />} />
             <Route path="/admin/branches" element={<AdminBranchManagement />} />
             <Route path="/admin/payments" element={<AdminPaymentOverview />} />
             <Route path="/admin/reviews" element={<AdminReviewManagement />} />
             <Route path="/admin/materials" element={<Materials />} />
-            <Route path="/admin/tests" element={<AdminTestManagement />} /> */}
+            <Route path="/admin/tests" element={<AdminTestManagement />} /> 
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

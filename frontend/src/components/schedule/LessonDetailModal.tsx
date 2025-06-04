@@ -96,14 +96,35 @@ export const LessonDetailModal: React.FC<LessonDetailModalProps> = ({
               <p className="text-sm text-gray-400">{getFilialName(lesson.filial_id)}</p>
             </div>
           </div>
-
+           <div className="flex items-start">
+                <BadgeCheck className="h-5 w-5 mr-3 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-gray-400">
+                    {lesson.status === 'available'
+                      ? 'Доступно до бронювання'
+                      : lesson.status === 'booked'
+                        ? 'Заброньовано'
+                        : lesson.status === 'completed'
+                          ? 'Завершено'
+                          : lesson.status === 'cancelled'
+                            ? 'Скасовано'
+                            : lesson.status === 'active'
+                              ? 'Заплановано'
+                              : 'Доступно до бронювання'}
+                    {lesson.student && (
+                      <> ({lesson.student})</>
+                    )}
+                  </p>
+                </div>
+              </div>
           {lesson.type === 'theory' ? (
             <>
               <div className="flex items-start">
                 <Users className="h-5 w-5 mr-3 text-gray-400 mt-0.5" />
                 <div>
                   <p className="font-medium">Група</p>
-                  <p className="text-sm text-gray-400">{lesson.group}</p>
+                  <p className="text-sm text-gray-400">{lesson.group || 'Ранкова B1'}</p>
                 </div>
               </div>
               
@@ -119,26 +140,7 @@ export const LessonDetailModal: React.FC<LessonDetailModalProps> = ({
             </>
           ) : (
             <>
-              <div className="flex items-start">
-                <BadgeCheck className="h-5 w-5 mr-3 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="font-medium">Статус</p>
-                  <p className="text-sm text-gray-400">
-                    {lesson.status === 'available'
-                      ? 'Доступно до бронювання'
-                      : lesson.status === 'booked'
-                        ? 'Заброньовано'
-                        : lesson.status === 'completed'
-                          ? 'Завершено'
-                          : lesson.status === 'cancelled'
-                            ? 'Скасовано'
-                            : '—'}
-                    {lesson.student && (
-                      <> ({lesson.student})</>
-                    )}
-                  </p>
-                </div>
-              </div>
+
               
               <div className="flex items-start">
                 <Car className="h-5 w-5 mr-3 text-gray-400 mt-0.5" />
@@ -161,14 +163,14 @@ export const LessonDetailModal: React.FC<LessonDetailModalProps> = ({
         
         <DialogFooter>
           <div className="flex justify-between w-full">
-            {canEdit && (
+            {canEdit && lesson.status != 'cancelled' &&(
               <div className="space-x-2">
                 <Button
                   variant="outline"
                   className="border-red-500/30 text-red-500 hover:bg-red-950/20"
                   onClick={onDelete}
                 >
-                  Видалити
+                  Відмінити
                 </Button>
                 <Button
                   variant="outline"

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
+import { useAuthStore } from '@/store/authStore';
+
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +71,7 @@ const mockBranches = [
 ];
 
 const AdminGroupManagement = () => {
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddGroupDialogOpen, setIsAddGroupDialogOpen] = useState(false);

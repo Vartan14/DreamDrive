@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,7 +92,7 @@ const mockPayments = [
 ];
 
 const AdminPaymentOverview = () => {
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -252,11 +252,7 @@ const AdminPaymentOverview = () => {
                 <SelectItem value="refunded">Повернено</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Button variant="outline" className="flex gap-2">
-              <Download size={16} />
-              Експортувати
-            </Button>
+                    
           </div>
         </div>
         

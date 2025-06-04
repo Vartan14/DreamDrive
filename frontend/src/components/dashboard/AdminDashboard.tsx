@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { UserData } from '@/types/userInterface';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Building, CreditCard, Calendar, Settings, MessageSquare, TrendingUp, BookOpen, FileText } from 'lucide-react';
+import { Users, Building, CreditCard, Calendar, Settings, MessageSquare, TrendingUp, BookOpen, FileText, Medal } from 'lucide-react';
 
 interface AdminDashboardProps {
   user: UserData;
@@ -11,25 +11,25 @@ interface AdminDashboardProps {
 
 // Мок-дані для адмін-дашборду
 const statistics = {
-  totalStudents: 145,
-  totalInstructors: 12,
+  totalStudents: 14,
+  totalInstructors: 2,
   totalBranches: 3,
-  activeSubscriptions: 98,
-  revenueThisMonth: 12450,
+  activeSubscriptions: 13,
+  revenueThisMonth: 325000,
   lessonCompletionRate: 92,
   overallRating: 4.8
 };
 
 const recentPayments = [
-  { id: 1, student: 'John Student', amount: 299, date: '2023-06-09', status: 'completed' },
-  { id: 2, student: 'Maria Garcia', amount: 299, date: '2023-06-08', status: 'completed' },
+  { id: 1, student: 'Тимур Захарченко', amount: 25000, date: '2023-06-09', status: 'success' },
+  { id: 2, student: 'Олександра  Петренко', amount: 25000, date: '2023-06-08', status: 'success' },
   // { id: 3, student: 'David Wilson', amount: 199, date: '2023-06-08', status: 'completed' },
   // { id: 4, student: 'Sarah Johnson', amount: 299, date: '2023-06-07', status: 'failed' },
 ];
 
 const newReviews = [
-  { id: 1, student: 'Emily Johnson', rating: 5, date: '2023-06-09' },
-  { id: 2, student: 'Michael Smith', rating: 4, date: '2023-06-08' },
+  { id: 1, student: 'Анна  Кравчук', rating: 5, date: '2023-06-09' },
+  { id: 2, student: 'Артем Лисенко', rating: 4, date: '2023-06-08' },
 ];
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
@@ -43,7 +43,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <div>
                 <p className="text-sm text-gray-400">Всього студентів</p>
                 <h3 className="text-3xl font-bold mt-1">{statistics.totalStudents}</h3>
-                <p className="text-xs text-green-500 mt-1">+5.2% за місяць</p>
+                <p className="text-xs text-green-500 mt-1">+13 за місяць</p>
               </div>
               <Users size={24} className="text-lider-red" />
             </div>
@@ -69,7 +69,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <div>
                 <p className="text-sm text-gray-400">Активних підписок</p>
                 <h3 className="text-3xl font-bold mt-1">{statistics.activeSubscriptions}</h3>
-                <p className="text-xs text-green-500 mt-1">+3.7% за місяць</p>
+                <p className="text-xs text-green-500 mt-1">+13 за місяць</p>
               </div>
               <CreditCard size={24} className="text-lider-red" />
             </div>
@@ -81,8 +81,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-400">Дохід за місяць</p>
-                <h3 className="text-3xl font-bold mt-1">${statistics.revenueThisMonth}</h3>
-                <p className="text-xs text-green-500 mt-1">+8.3% за місяць</p>
+                <h3 className="text-3xl font-bold mt-1">
+                  {statistics.revenueThisMonth.toLocaleString('uk-UA')} грн
+                </h3>
+                <p className="text-xs text-green-500 mt-1">+100% за місяць</p>
               </div>
               <TrendingUp size={24} className="text-lider-red" />
             </div>
@@ -91,15 +93,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       </div>
 
       {/* Row 2: Users & Payments */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Users */}
-        <Card className="bg-gradient-to-br from-lider-red/20 to-black border-lider-red/30">
+        <Card className="bg-secondary border-gray-800 md:col-span-1">
           <CardContent className="pt-6 h-full flex flex-col justify-center">
             <div className="text-center">
               <Users size={36} className="mx-auto mb-4 text-lider-red" />
               <h3 className="font-bold text-lg mb-2">Керування користувачами</h3>
               <p className="text-gray-400 mb-4">
-                Керуйте студентами та інструкторами, призначайте ролі та права.
+                Керуйте студентами та інструкторами
               </p>
               <Button asChild className="bg-lider-red hover:bg-red-700">
                 <Link to="/admin/users">Користувачі</Link>
@@ -108,7 +110,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           </CardContent>
         </Card>
         {/* Payments */}
-        <Card className="bg-secondary border-gray-800">
+        <Card className="bg-secondary border-gray-800 md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center">
               <CreditCard size={18} className="mr-2 text-lider-red" />
@@ -132,11 +134,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">${payment.amount}</div>
+                    <div className="font-medium">{payment.amount.toLocaleString('uk-UA')} грн</div>
                     <div className={`text-xs ${
-                      payment.status === 'completed' ? 'text-green-500' : 'text-red-500'
+                      payment.status === 'success' ? 'text-green-500' : 'text-red-500'
                     }`}>
-                      {payment.status === 'completed' ? 'Завершено' : 'Помилка'}
+                      {payment.status === 'success' ? 'Завершено' : 'Помилка'}
                     </div>
                   </div>
                 </div>
@@ -152,84 +154,49 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       {/* Row 3: Schedule, Materials, Tests */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Schedule */}
-        <Card className="bg-secondary border-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar size={18} className="mr-2 text-lider-red" />
-              Огляд розкладу
-            </CardTitle>
-            <CardDescription>
-              Відстежуйте всі заплановані заняття по філіях та інструкторах
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-4">
-              <Calendar size={36} className="mx-auto mb-2 text-lider-red opacity-80" />
-              <Button asChild className="bg-lider-red hover:bg-red-700 mt-2">
-                <Link to="/admin/schedule">Переглянути розклад</Link>
-              </Button>
-            </div>
+        <Card className="bg-secondary border-gray-700 h-full flex flex-col">
+          <CardContent className="pt-6 flex-1 flex flex-col items-center justify-center">
+            <Calendar size={36} className="mb-4 text-lider-red" />
+            <h3 className="font-bold text-lg mb-2">Розклад</h3>
+            <p className="text-gray-400 mb-4 text-center">
+             Управляйте розкладом занять викладачів 
+            </p>
+            <Button asChild className="bg-lider-red hover:bg-red-700">
+              <Link to="/admin/schedule">Перейти до розкладу</Link>
+            </Button>
           </CardContent>
         </Card>
         {/* Materials */}
-        <Card className="bg-secondary border-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <BookOpen size={18} className="mr-2 text-lider-red" />
-              Матеріали
-            </CardTitle>
-            <CardDescription>
-              Керуйте навчальними матеріалами, ПДР та ресурсами
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-4">
-              <BookOpen size={36} className="mx-auto mb-2 text-lider-red opacity-80" />
-              <Button asChild className="bg-lider-red hover:bg-red-700 mt-2">
-                <Link to="/materials">Керувати матеріалами</Link>
-              </Button>
-            </div>
+        <Card className="bg-secondary border-gray-700 h-full flex flex-col">
+          <CardContent className="pt-6 flex-1 flex flex-col items-center justify-center">
+            <BookOpen size={36} className="mb-4 text-lider-red" />
+            <h3 className="font-bold text-lg mb-2">Матеріали</h3>
+            <p className="text-gray-400 mb-4 text-center">
+              Керуйте навчальними матеріалами та ресурсами для студентів
+            </p>
+            <Button asChild className="bg-lider-red hover:bg-red-700">
+              <Link to="/admin/materials">Перейти до матеріалів</Link>
+            </Button>
           </CardContent>
         </Card>
         {/* Tests */}
-        <Card className="bg-secondary border-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText size={18} className="mr-2 text-lider-red" />
-              Керування тестами
-            </CardTitle>
-            <CardDescription>
-              Створюйте, редагуйте та переглядайте тести для учнів
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-4">
-              <FileText size={36} className="mx-auto mb-2 text-lider-red opacity-80" />
-              <Button asChild className="bg-lider-red hover:bg-red-700 mt-2">
-                <Link to="/admin/tests">Керувати тестами</Link>
-              </Button>
-            </div>
+        <Card className="bg-secondary border-gray-700 h-full flex flex-col">
+          <CardContent className="pt-6 flex-1 flex flex-col items-center justify-center">
+            <Medal size={36} className="mb-4 text-lider-red" />
+            <h3 className="font-bold text-lg mb-2">Тести</h3>
+            <p className="text-gray-400 mb-4 text-center">
+              Керуйте тестами та переглядайте результати студентів
+            </p>
+            <Button asChild className="bg-lider-red hover:bg-red-700">
+              <Link to="/admin/tests">Управління тестами</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
 
       {/* Row 4: Branches & Reviews */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Branches */}
-        <Card className="bg-gradient-to-br from-gray-800/30 to-black border-gray-700 md:col-span-1">
-          <CardContent className="pt-6 h-full flex flex-col justify-center">
-            <div className="text-center">
-              <Building size={36} className="mx-auto mb-4 text-lider-red" />
-              <h3 className="font-bold text-lg mb-2">Керування філіями</h3>
-              <p className="text-gray-400 mb-4">
-                Оновлюйте інформацію про філії, графік роботи та послуги.
-              </p>
-              <Button asChild className="bg-lider-red hover:bg-red-700">
-                <Link to="/admin/branches">Філії</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      
         {/* Reviews (wider) */}
         <Card className="bg-secondary border-gray-800 md:col-span-2">
           <CardHeader>
@@ -274,13 +241,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                 </div>
               )}
               <div className="flex justify-between">
-                <Button asChild variant="outline">
-                  <Link to="/admin/reviews">Всі відгуки</Link>
+                <Button asChild variant="outline" className="bg-lider-red hover:bg-red-700">
+                  <Link to="/admin/reviews">Перейти до відгуків</Link>
                 </Button>
-                <Button asChild variant="outline">
-                  <Link to="/admin/reviews/moderate">Модерувати</Link>
-                </Button>
+              
               </div>
+            </div>
+          </CardContent>
+        </Card>
+          {/* Branches */}
+        <Card className="bg-secondary border-gray-700 md:col-span-1">
+          <CardContent className="pt-6 h-full flex flex-col justify-center">
+            <div className="text-center">
+              <Building size={36} className="mx-auto mb-4 text-lider-red" />
+              <h3 className="font-bold text-lg mb-2">Керування філіями</h3>
+              <p className="text-gray-400 mb-4">
+                Оновлюйте інформацію про філії, графік роботи та послуги.
+              </p>
+              <Button asChild className="bg-lider-red hover:bg-red-700">
+                <Link to="/admin/branches">Керування філіями</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

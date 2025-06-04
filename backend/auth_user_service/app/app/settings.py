@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',  # <- Support Login with Google
     'dj_rest_auth.registration',
     'drf_spectacular',
+    "phonenumber_field",
 
     'accounts',
     'core',
@@ -77,6 +78,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'allauth.account.middleware.AccountMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -137,7 +139,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk'
 
 TIME_ZONE = 'Europe/Kyiv'
 
@@ -277,4 +280,6 @@ PAYMENT_API_KEY = 'django-insecure--*+x1us_e0j+q++b&*g6$jna6of%n1k58c@zka)vzcp+p
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # або 'cache', якщо хочеш швидше
 SESSION_COOKIE_AGE = 1209600  # 2 тижні у секундах
-SESSION_SAVE_EVERY_REQUEST = True  # оновлює сесію на кожен запит
+SESSION_SAVE_EVERY_REQUEST = True
+
+PHONENUMBER_DEFAULT_REGION='UA'

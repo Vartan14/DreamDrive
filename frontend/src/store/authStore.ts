@@ -26,16 +26,14 @@ const useAuthStore = create<AuthState>((set, get) => ({
             
             console.log("Fetched user data:", user);
 
-            set((state) => ({
-            user: {
-                ...state.user,
-                ...user,
-                profile: {
-                    ...state.user?.profile,
-                    ...user.profile
-                }
+        set((state) => ({
+            user: { 
+                ...state.user,            
+                ...user,  
+                         
             }
-        }))
+        }));
+        console.log("Saved user data:", user);    
 
         } catch (err) {
             console.error("Error fetching user data:", err);   
@@ -49,10 +47,6 @@ const useAuthStore = create<AuthState>((set, get) => ({
             user: {
                 ...state.user,
                 ...user,
-                profile: {
-                    ...state.user?.profile,
-                    ...user.profile
-                }
             }
         }))
     },

@@ -147,7 +147,8 @@ const InstructorGroups = () => {
                                 <TableCell className="font-medium">{student.first_name}</TableCell>
                                 <TableCell>{student.email}</TableCell>
                                 <TableCell className="text-sm text-gray-400">
-                                  {student.type}
+                                  {student.type === 'theory' ? 'Теорія' : 
+                                  student.type === 'practice' ? 'Практика' : ''}
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center space-x-3">

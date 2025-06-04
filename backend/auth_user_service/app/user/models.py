@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager,
                                         PermissionsMixin)
+from phonenumber_field.modelfields import PhoneNumberField
+
 
 
 class UserManager(BaseUserManager):
@@ -52,8 +54,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=Role.STUDENT,
     )
     birth_date = models.DateField(null=True, blank=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)
+    phone = PhoneNumberField(null=True, blank=True, default='')
+
     address = models.TextField(null=True, blank=True)
+    about_me = models.TextField(null=True, blank=True, default='')
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

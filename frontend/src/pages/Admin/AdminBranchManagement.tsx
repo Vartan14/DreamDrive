@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,48 +8,60 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Phone, MapPin, Clock, Plus, Edit, Trash2, Building } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// Мок-дані філій
-const mockBranches = [
+// Дані філій для відображення
+const branches = [
   {
     id: '1',
-    name: 'Головна філія',
-    address: 'вул. Головна, 123, Київ, 01001',
+    name: 'Київ, м Позняки ',
+    address: 'вул. Тараса Шевченка, 123, Київ, Україна',
     phone: '+380 44 123 4567',
-    email: 'main@dreamdrive.com',
-    openingHours: 'Пн-Пт 09:00-18:00, Сб 10:00-16:00',
-    instructors: 5,
-    activeGroups: 8,
-    facilities: ['Аудиторії для теорії', 'Симуляційна лабораторія', 'Навчальні авто', 'Мототренувальний майданчик'],
-    image: 'https://images.unsplash.com/photo-1577301646464-fb7762ba2f28?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=123+Main+Street+Kyiv+Ukraine',
   },
   {
     id: '2',
-    name: 'Центральна філія',
-    address: 'просп. Центральний, 45, Київ, 01054',
-    phone: '+380 44 234 5678',
-    email: 'downtown@dreamdrive.com',
-    openingHours: 'Пн-Чт 10:00-19:00, Пт-Сб 10:00-17:00',
-    instructors: 3,
-    activeGroups: 5,
-    facilities: ['Аудиторії для теорії', 'Навчальні авто'],
-    image: 'https://images.unsplash.com/photo-1577301643375-5a59320202dc?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'
+    name: 'Львів, проспект Західний',
+    address: 'просп. Західний, 456, Львів, Україна',
+    phone: '+380 32 234 5678',
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=456+West+Avenue+Lviv+Ukraine',
   },
   {
     id: '3',
-    name: 'Східна філія',
-    address: 'вул. Східна, 78, Київ, 02140',
-    phone: '+380 44 345 6789',
-    email: 'east@dreamdrive.com',
-    openingHours: 'Пн-Пт 08:00-17:00, Сб 09:00-15:00',
-    instructors: 4,
-    activeGroups: 6,
-    facilities: ['Аудиторії для теорії', 'Навчальні авто', 'Майданчик для вантажівок'],
-    image: 'https://images.unsplash.com/photo-1577301999619-d7c5f700662b?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'
-  }
+    name: 'Одеса, бульвар Південний',
+    address: 'бульв. Південний, 789, Одеса, Україна',
+    phone: '+380 48 345 6789',
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=789+South+Boulevard+Odesa+Ukraine',
+  },
+  {
+    id: '4',
+    name: 'Харків, вул. Київська',
+    address: 'вул. Київська, 101/34а, Харків, Україна',
+    phone: '+380 57 456 7890',
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=101+East+Road+Kharkiv+Ukraine',
+  },
+  {
+    id: '5',
+    name: 'Чернігів, вул. Північна',
+    address: 'вул. Північна, 202, Чернігів, Україна',
+    phone: '+380 46 567 8901',
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=202+North+Street+Chernihiv+Ukraine',
+  },
+  {
+    id: '6',
+    name: 'Київ, м. Шулявка',
+    address: 'просп. Центральний, 303, Київ, Україна',
+    phone: '+380 56 678 9012',
+    workingHours: 'Понеділок–П’ятниця: 9:00 – 18:00, Субота: 10:00 – 15:00',
+    mapUrl: 'https://maps.google.com/?q=303+Central+Avenue+Dnipro+Ukraine',
+  },
 ];
 
 const AdminBranchManagement = () => {
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();
   const navigate = useNavigate();
   const [isAddBranchDialogOpen, setIsAddBranchDialogOpen] = useState(false);
   const [isEditBranchDialogOpen, setIsEditBranchDialogOpen] = useState(false);
@@ -191,15 +203,11 @@ const AdminBranchManagement = () => {
 
         {/* Картки філій */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-          {mockBranches.map(branch => (
+          {branches.map(branch => (
             <Card key={branch.id} className="bg-secondary border-gray-800 overflow-hidden">
               <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/3 h-48 md:h-auto">
-                  <img 
-                    src={branch.image} 
-                    alt={branch.name}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="md:w-1/3 h-48 md:h-auto flex items-center justify-center bg-gray-900">
+                  <Building size={64} className="text-gray-600" />
                 </div>
                 
                 <div className="md:w-2/3 p-6">
@@ -236,30 +244,9 @@ const AdminBranchManagement = () => {
                     </div>
                     <div className="flex items-center">
                       <Clock size={14} className="mr-2 text-gray-400 flex-shrink-0" />
-                      <span>{branch.openingHours}</span>
+                      <span>{branch.workingHours}</span>
                     </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {branch.facilities.map((facility, index) => (
-                      <span 
-                        key={index}
-                        className="px-2 py-1 bg-gray-700 text-gray-300 rounded-full text-xs"
-                      >
-                        {facility}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex space-x-4 text-sm mt-4">
-                    <div>
-                      <span className="text-gray-400">Інструкторів</span>
-                      <p className="font-medium">{branch.instructors}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Активних груп</span>
-                      <p className="font-medium">{branch.activeGroups}</p>
-                    </div>
+                   
                   </div>
                 </div>
               </div>
@@ -276,46 +263,21 @@ const AdminBranchManagement = () => {
                   <TableHead>Філія</TableHead>
                   <TableHead>Контакти</TableHead>
                   <TableHead>Графік</TableHead>
-                  <TableHead>Зручності</TableHead>
-                  <TableHead>Статистика</TableHead>
-                  <TableHead className="w-[100px]">Дії</TableHead>
+                  <TableHead>Дії</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockBranches.map(branch => (
+                {branches.map(branch => (
                   <TableRow key={branch.id} className="border-gray-700">
                     <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 rounded-md overflow-hidden">
-                          <img src={branch.image} alt={branch.name} className="h-full w-full object-cover" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{branch.name}</div>
-                          <div className="text-xs text-gray-400">{branch.address}</div>
-                        </div>
-                      </div>
+                      <div className="font-medium">{branch.name}</div>
+                      <div className="text-xs text-gray-400">{branch.address}</div>
                     </TableCell>
                     <TableCell>
                       <div>{branch.phone}</div>
-                      <div className="text-xs text-gray-400">{branch.email}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{branch.openingHours}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{branch.facilities.join(', ')}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-4 text-sm">
-                        <div>
-                          <span className="text-gray-400 text-xs">Інструкторів</span>
-                          <p className="font-medium">{branch.instructors}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400 text-xs">Груп</span>
-                          <p className="font-medium">{branch.activeGroups}</p>
-                        </div>
-                      </div>
+                      <div className="text-sm">{branch.workingHours}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
@@ -397,7 +359,7 @@ const AdminBranchManagement = () => {
                 <label htmlFor="edit-branch-hours" className="text-right">Графік роботи</label>
                 <input 
                   id="edit-branch-hours" 
-                  defaultValue={selectedBranch.openingHours} 
+                  defaultValue={selectedBranch.workingHours} 
                   className="col-span-3 bg-gray-800 border-gray-700 rounded-md p-2" 
                 />
               </div>

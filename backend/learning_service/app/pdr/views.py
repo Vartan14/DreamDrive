@@ -28,6 +28,24 @@ class RoadVisualElementViewSet(viewsets.ModelViewSet):
     serializer_class = RoadVisualElementSerializer
     permission_classes = [DefaultRolePermission]
 
+    def get_queryset(self):
+        """
+        Return rule sections filtered by the section number in query params.
+        """
+        queryset = RoadVisualElement.objects.all()
+        group_id = self.request.query_params.get('group')
+
+        if group_id:
+            try:
+                group_id = int(group_id)
+            except ValueError:
+                raise ValueError("Group id must be an integer.")
+
+            queryset = queryset.filter(group__id=group_id)
+
+        print(f"Final queryset: {queryset.query}")
+        return queryset
+
 @extend_schema(tags=["PDR / Rule Sections"])
 class RuleSectionViewSet(viewsets.ModelViewSet):
     """
@@ -54,7 +72,6 @@ class TrafficRuleViewSet(viewsets.ModelViewSet):
         """
         queryset = TrafficRule.objects.all()
         section_number = self.request.query_params.get('section')
-        print(f"Section number from query params: {section_number}")
 
         if section_number:
             try:

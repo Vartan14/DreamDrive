@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/pages/Auth/OLD_AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ import {
 const mockReviews = [
   {
     id: 1,
-    student: 'Emily Johnson',
+    student: 'Емілі Джонсон',
     email: 'emily@example.com',
     rating: 5,
     date: '2023-06-09',
@@ -33,7 +33,7 @@ const mockReviews = [
   },
   {
     id: 2,
-    student: 'Michael Smith',
+    student: 'Майкл Сміт',
     email: 'michael@example.com',
     rating: 4,
     date: '2023-06-08',
@@ -42,7 +42,7 @@ const mockReviews = [
   },
   {
     id: 3,
-    student: 'Sophie Turner',
+    student: 'Софія Тернер',
     email: 'sophie@example.com',
     rating: 2,
     date: '2023-06-07',
@@ -51,7 +51,7 @@ const mockReviews = [
   },
   {
     id: 4,
-    student: 'David Wilson',
+    student: 'Давид Вілсон',
     email: 'david@example.com',
     rating: 5,
     date: '2023-06-06',
@@ -60,7 +60,7 @@ const mockReviews = [
   },
   {
     id: 5,
-    student: 'Laura Martinez',
+    student: 'Лаура Мартінес',
     email: 'laura@example.com',
     rating: 1,
     date: '2023-06-05',
@@ -69,7 +69,7 @@ const mockReviews = [
   },
   {
     id: 6,
-    student: 'Alex Brown',
+    student: 'Олексій Браун',
     email: 'alex@example.com',
     rating: 4,
     date: '2023-06-04',
@@ -78,7 +78,7 @@ const mockReviews = [
   },
   {
     id: 7,
-    student: 'John Miller',
+    student: 'Джон Міллер',
     email: 'john@example.com',
     rating: 5,
     date: '2023-06-03',
@@ -122,7 +122,7 @@ const mockFaqs = [
 ];
 
 const AdminReviewManagement = () => {
-  const { authState } = useAuth();
+  const  authState  = useAuthStore();  
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('reviews');
@@ -254,7 +254,7 @@ const AdminReviewManagement = () => {
                           {review.published ? (
                             <Badge className="bg-green-600">Опубліковано</Badge>
                           ) : (
-                            <Badge className="bg-yellow-600">Очікує</Badge>
+                            <Badge className="bg-yellow-600">Приховано</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-right space-x-2">
@@ -263,25 +263,9 @@ const AdminReviewManagement = () => {
                             size="sm"
                             className="text-blue-400 hover:text-blue-300"
                           >
-                            <Eye size={16} />
+                            <Edit size={16} />
                           </Button>
-                          {review.published ? (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-yellow-400 hover:text-yellow-300"
-                            >
-                              <XCircle size={16} />
-                            </Button>
-                          ) : (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-green-400 hover:text-green-300"
-                            >
-                              <CheckCircle size={16} />
-                            </Button>
-                          )}
+                         
                           <Button 
                             variant="ghost" 
                             size="sm"
@@ -408,7 +392,7 @@ const AdminReviewManagement = () => {
                           {faq.published ? (
                             <Badge className="bg-green-600">Опубліковано</Badge>
                           ) : (
-                            <Badge className="bg-yellow-600">Чернетка</Badge>
+                            <Badge className="bg-yellow-600">Приховано</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-right space-x-2">
@@ -419,23 +403,7 @@ const AdminReviewManagement = () => {
                           >
                             <Edit size={16} />
                           </Button>
-                          {faq.published ? (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-yellow-400 hover:text-yellow-300"
-                            >
-                              <XCircle size={16} />
-                            </Button>
-                          ) : (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-green-400 hover:text-green-300"
-                            >
-                              <CheckCircle size={16} />
-                            </Button>
-                          )}
+                         
                           <Button 
                             variant="ghost" 
                             size="sm"

@@ -38,7 +38,7 @@ export async function addTitleToLessonEvent(lesson: LessonEvent): Promise<Lesson
     return lesson;
 }
 
-export async function getTeacherEvents(): Promise<[LessonEvent]> {
+export async function getTeacherEvents(withoutTitle: boolean = false): Promise<[LessonEvent]> {
     try {
         const response = await apiInstance.get(`${TEACHER_EVENTS_URL}`);
         const lessons = response.data;
@@ -62,8 +62,14 @@ export async function getTeacherEvents(): Promise<[LessonEvent]> {
             student_id: lesson.data.student_id || '',
         } as LessonEvent));
 
-        const enrichedEvents = await Promise.all(lessonEvents.map(addTitleToLessonEvent));
-        return enrichedEvents as [LessonEvent];
+        if (withoutTitle) {
+            return lessonEvents as [LessonEvent];
+        }
+        else {
+            const enrichedEvents = await Promise.all(lessonEvents.map(addTitleToLessonEvent));
+            return enrichedEvents as [LessonEvent];
+        }
+
     } catch (error: any) {
         console.error('Error while getting teacher events:', error);
         throw error;

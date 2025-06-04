@@ -172,7 +172,7 @@ LIQPAY_PUBLIC_KEY = os.getenv('LIQPAY_PUBLIC_KEY')
 LIQPAY_PRIVATE_KEY = os.getenv('LIQPAY_PRIVATE_KEY')
 
 LIQPAY_RESULT_URL = 'http://localhost:8080/payments/result/'
-LIQPAY_CALLBACK_URL = 'https://f884-77-47-207-201.ngrok-free.app/api/v1/payments/callback/'
+LIQPAY_CALLBACK_URL = 'https://6154-77-47-207-201.ngrok-free.app/api/v1/payments/callback/'
 
 AUTH_SERVICE_URL ='http://api_gateway:8005/api/v1/payment-callback/'
 PAYMENT_API_KEY ='django-insecure--*+x1us_e0j+q++b&*g6$jna6of%n1k58c@zka)vzcp+ph48mg'

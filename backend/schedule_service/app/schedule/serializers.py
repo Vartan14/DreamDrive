@@ -8,7 +8,7 @@ class TheoryLessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TheoryLesson
-        fields = ['id', 'title','start_time', 'end_time', 'duration', 'filial_id', 'instructor_id', 'group_id', 'is_online']
+        fields = ['id', 'title','start_time', 'end_time', 'duration', 'filial_id', 'instructor_id','instructor_name', 'group_id', 'is_online', 'status']
         read_only_fields = ('instructor_id', 'created_at')
 
     def get_end_time(self, obj):
@@ -22,9 +22,10 @@ class PracticeLessonSerializer(serializers.ModelSerializer):
     """Practice Lesson serializer"""
     end_time = serializers.SerializerMethodField()
 
+
     class Meta:
         model = PracticeLesson
-        fields = ['id', 'title','start_time','end_time', 'duration', 'filial_id', 'instructor_id', 'status', 'location', 'car', 'student_id']
+        fields = ['id', 'title','start_time','end_time', 'duration', 'filial_id', 'instructor_id','instructor_name', 'status', 'location', 'car', 'student_id']
         read_only_fields = ('instructor_id', 'created_at')
 
     def get_end_time(self, obj):
@@ -70,7 +71,7 @@ class LessonCalendarSerializer(serializers.Serializer):
         if isinstance(instance, TheoryLesson):
             return 'theory'
         elif isinstance(instance, PracticeLesson):
-            return 'practice'
+            return 'practical'
         return None
 
     def to_representation(self, instance):
