@@ -98,7 +98,7 @@ const Header = () => {
                   <Link to="/profile">Налаштування профілю</Link>
                 </DropdownMenuItem>
                 
-                {user.role === 'student' && user.is_paid === false  && (
+                {user.role === 'student'  && (
                   <>
                     <DropdownMenuSeparator className="bg-gray-800" />
 
@@ -110,10 +110,10 @@ const Header = () => {
 
                 {user.role === 'student'&& user.is_paid === true  && (
                   <>
-                    <DropdownMenuSeparator className="bg-gray-800" />
-                    <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
+                    {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
+                    {/* <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/payments">Платежі</Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/schedule">Мої заняття</Link>
                     </DropdownMenuItem>
@@ -164,9 +164,9 @@ const Header = () => {
                     <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/admin/branches">Управління філіями</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
+                    {/* <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/materials">Управління матеріалами</Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/admin/reviews">Управління відгуками</Link>
                     </DropdownMenuItem>
@@ -309,9 +309,9 @@ const Header = () => {
                     <Link to="/materials" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Управління матеріалами
                     </Link>                   
-                    <Link to="/admin/branches" className="block py-2 px-3 hover:bg-gray-800 rounded">
+                    {/* <Link to="/admin/branches" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Управління філіями
-                    </Link>
+                    </Link> */}
                     <Link to="/admin/reviews" className="block py-2 px-3 hover:bg-gray-800 rounded">
                       Управління відгуками
                     </Link>

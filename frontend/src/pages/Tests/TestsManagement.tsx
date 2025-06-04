@@ -57,7 +57,6 @@ const TestsManagement = () => {
   const authState  = useAuthStore();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<string>('my-tests');
   const [searchQuery, setSearchQuery] = useState('');
   const [tests, setTests] = useState(mockTests);
   const [filteredTests, setFilteredTests] = useState(mockTests);
@@ -137,24 +136,11 @@ const TestsManagement = () => {
               </div>
             </CardHeader>
             
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-6">
-                  <TabsTrigger 
-                    value="my-tests" 
-                    className="data-[state=active]:bg-lider-red data-[state=active]:text-white"
-                  >
-                    Мої тести
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="shared-tests" 
-                    className="data-[state=active]:bg-lider-red data-[state=active]:text-white"
-                  >
-                    Спільні тести
-                  </TabsTrigger>
-                </TabsList>
+           
                 
-                <TabsContent value="my-tests" className="space-y-4">
+            <CardContent>
+                
+              
                   <div className="flex flex-col md:flex-row justify-between mb-4 gap-4">
                     <div className="md:w-1/2">
                       <div className="relative">
@@ -279,18 +265,9 @@ const TestsManagement = () => {
                       </Table>
                     </div>
                   )}
-                </TabsContent>
-                
-                <TabsContent value="shared-tests" className="space-y-4">
-                  <div className="text-center py-12 border border-gray-700 rounded-lg">
-                    <User className="h-12 w-12 mx-auto text-gray-500 mb-3" />
-                    <h3 className="text-lg font-medium mb-2">Немає спільних тестів</h3>
-                    <p className="text-gray-400 max-w-md mx-auto">
-                      Інші інструктори ще не поділилися з вами тестами.
-                    </p>
-                  </div>
-                </TabsContent>
-              </Tabs>
+    
+            
+              
             </CardContent>
           </Card>
           

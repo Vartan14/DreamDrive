@@ -171,7 +171,7 @@ const Tests = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <FileCheck className="w-4 h-4" />
-                <span>Користувацькі</span>
+                <span>Призначені</span>
               </div>
             </TabsTrigger>
           </TabsList>

@@ -66,12 +66,12 @@ const CustomTests: React.FC<CustomTestsProps> = ({ isInstructor, onTestSelected 
             <div>
               <CardTitle className="text-2xl flex items-center">
                 <BookOpen className="mr-3 text-lider-red" />
-                Користувацькі тести
+                Призначені тести
               </CardTitle>
               <CardDescription>
                 {isInstructor 
                   ? "Створюйте та керуйте власними тестами для ваших учнів" 
-                  : "Проходьте тести, створені вашими інструкторами"
+                  : "Проходьте тести, призначені вашими інструкторами"
                 }
               </CardDescription>
             </div>

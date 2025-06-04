@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -17,7 +16,11 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BookOpen, Search, Check, X, Clock, AlertCircle, Save, Plus } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import styles from './TestCreation.module.css';
+import {questions, Question, Answer} from '@/types/questions'; // Adjust the import path as necessary
+import { se } from 'date-fns/locale';
+
 
 // Mock API functions - replace with actual API calls
 const fetchQuestionPool = async () => {
@@ -25,155 +28,7 @@ const fetchQuestionPool = async () => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   // Return mock data
-  return [
-    {
-      id: 3576,
-      question_number: "1651",
-      text: "What does this traffic sign indicate?",
-      image: "https://images.unsplash.com/photo-1550656738-8b2c643afcbc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHRyYWZmaWMlMjBsaWdodHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-      topic: "Road Signs",
-      difficulty: "Medium",
-      answers: [
-        {
-          id: 11376,
-          text: "A road with a designated lane for vehicles and cyclists to follow a specific route.",
-          is_correct: true
-        },
-        {
-          id: 11377,
-          text: "A road where cyclists are not allowed.",
-          is_correct: false
-        },
-        {
-          id: 11378,
-          text: "A warning that there may be cyclists on the road.",
-          is_correct: false
-        },
-        {
-          id: 11379,
-          text: "A dedicated bike path separate from the road.",
-          is_correct: false
-        }
-      ]
-    },
-    {
-      id: 3577,
-      question_number: "1652",
-      text: "When approaching a pedestrian crossing with no traffic lights, you should:",
-      topic: "Road Rules",
-      difficulty: "Easy",
-      answers: [
-        {
-          id: 11380,
-          text: "Speed up to cross quickly.",
-          is_correct: false
-        },
-        {
-          id: 11381,
-          text: "Maintain your speed but be prepared to stop.",
-          is_correct: false
-        },
-        {
-          id: 11382,
-          text: "Slow down and be prepared to stop for pedestrians.",
-          is_correct: true
-        },
-        {
-          id: 11383,
-          text: "Stop only if there are pedestrians already crossing.",
-          is_correct: false
-        }
-      ]
-    },
-    {
-      id: 3578,
-      question_number: "1653",
-      text: "What is the proper action when you see this road sign?",
-      image: "https://images.unsplash.com/photo-1590837343047-7ac279e5e183?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fHN0b3AlMjBzaWdufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-      topic: "Road Signs",
-      difficulty: "Easy",
-      answers: [
-        {
-          id: 11384,
-          text: "Slow down and proceed if the way is clear.",
-          is_correct: false
-        },
-        {
-          id: 11385,
-          text: "Come to a complete stop and proceed only when safe.",
-          is_correct: true
-        },
-        {
-          id: 11386,
-          text: "Yield to traffic on the main road.",
-          is_correct: false
-        },
-        {
-          id: 11387,
-          text: "Stop only if there is traffic approaching.",
-          is_correct: false
-        }
-      ]
-    },
-    {
-      id: 3579,
-      question_number: "1654",
-      text: "What is the speed limit in a residential area unless otherwise posted?",
-      topic: "Speed Limits",
-      difficulty: "Medium",
-      answers: [
-        {
-          id: 11388,
-          text: "30 km/h",
-          is_correct: false
-        },
-        {
-          id: 11389,
-          text: "50 km/h",
-          is_correct: true
-        },
-        {
-          id: 11390,
-          text: "60 km/h",
-          is_correct: false
-        },
-        {
-          id: 11391,
-          text: "70 km/h",
-          is_correct: false
-        }
-      ]
-    },
-    {
-      id: 3580,
-      question_number: "1655",
-      text: "When making a right turn, you should:",
-      topic: "Road Rules",
-      difficulty: "Medium",
-      answers: [
-        {
-          id: 11392,
-          text: "Signal early, move to the right lane, and turn from the right lane.",
-          is_correct: true
-        },
-        {
-          id: 11393,
-          text: "Signal at the last moment and turn from any lane.",
-          is_correct: false
-        },
-        {
-          id: 11394,
-          text: "Signal early, stay in the left lane, and turn across traffic.",
-          is_correct: false
-        },
-        {
-          id: 11395,
-          text: "No signal is required for right turns.",
-          is_correct: false
-        }
-      ]
-    }
-  ];
+  return questions
 };
 
 const createCustomTest = async (testData: any) => {
@@ -188,26 +43,10 @@ const createCustomTest = async (testData: any) => {
   };
 };
 
-interface Question {
-  id: number;
-  question_number: string;
-  text: string;
-  image?: string;
-  topic: string;
-  difficulty: string;
-  answers: Answer[];
-  selected?: boolean;
-}
-
-interface Answer {
-  id: number;
-  text: string;
-  is_correct: boolean;
-}
-
 interface TopicFilter {
   [key: string]: boolean;
 }
+
 
 const  TestCreation = () => {
   const authState  = useAuthStore();
@@ -216,6 +55,7 @@ const  TestCreation = () => {
   
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [topics, setTopics] = useState<string[]>([]); // масив унікальних тем
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState('');
@@ -223,46 +63,37 @@ const  TestCreation = () => {
   const [timeLimit, setTimeLimit] = useState(30);
   const [isPublished, setIsPublished] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [topicFilters, setTopicFilters] = useState<TopicFilter>({});
-  const [difficultyFilters, setDifficultyFilters] = useState<{[key: string]: boolean}>({
-    'Easy': false,
-    'Medium': false,
-    'Hard': false
-  });
+  const [selectedTopic, setSelectedTopic] = useState<string>('all'); // для Select, "all" — всі теми
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('question-pool');
-  
+
   // Load questions from the API
   useEffect(() => {
     const loadQuestions = async () => {
       setLoading(true);
-      
+
       try {
         const data = await fetchQuestionPool();
         setQuestions(data);
         setFilteredQuestions(data);
-        
-        // Extract unique topics for filters
-        const topics: TopicFilter = {};
-        data.forEach(q => {
-          if (q.topic) {
-            topics[q.topic] = false;
-          }
-        });
-        setTopicFilters(topics);
+
+        // Витягуємо унікальні теми з питань
+        const uniqueTopics = Array.from(new Set(data.map(q => q.topic).filter(Boolean)));
+        setTopics(uniqueTopics);
+        // topicFilters більше не потрібен, якщо використовуємо Select
       } catch (error) {
         console.error('Error loading questions:', error);
         toast({
           title: "Error",
-          description: "Failed to load questions. Please try again.",
+          description: "Помилка завантаження питань. Спробуйте ще раз.",
           variant: "destructive"
         });
       } finally {
         setLoading(false);
       }
     };
-    
-    if (authState.user && (authState.user.role === 'teacger' || authState.user.role === 'admin')) {
+
+    if (authState.user && (authState.user.role === 'teacher' || authState.user.role === 'admin')) {
       loadQuestions();
     } else if (!authState.isLoading && (!authState.user || (authState.user.role !== 'teacher' && authState.user.role !== 'admin'))) {
       navigate('/dashboard');
@@ -277,9 +108,9 @@ const  TestCreation = () => {
   // Filter questions based on search and filters
   useEffect(() => {
     if (!questions.length) return;
-    
+
     let filtered = [...questions];
-    
+
     // Apply search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -289,27 +120,14 @@ const  TestCreation = () => {
         q.topic.toLowerCase().includes(query)
       );
     }
-    
-    // Apply topic filters
-    const activeTopicFilters = Object.entries(topicFilters)
-      .filter(([_, isActive]) => isActive)
-      .map(([topic]) => topic);
-      
-    if (activeTopicFilters.length) {
-      filtered = filtered.filter(q => activeTopicFilters.includes(q.topic));
+
+    // Apply topic select filter
+    if (selectedTopic && selectedTopic !== "all") {
+      filtered = filtered.filter(q => q.topic === selectedTopic);
     }
-    
-    // Apply difficulty filters
-    const activeDifficultyFilters = Object.entries(difficultyFilters)
-      .filter(([_, isActive]) => isActive)
-      .map(([difficulty]) => difficulty);
-      
-    if (activeDifficultyFilters.length) {
-      filtered = filtered.filter(q => activeDifficultyFilters.includes(q.difficulty));
-    }
-    
+
     setFilteredQuestions(filtered);
-  }, [searchQuery, topicFilters, difficultyFilters, questions]);
+  }, [searchQuery, selectedTopic, questions]);
   
   // Toggle question selection
   const toggleQuestionSelection = (questionId: number) => {
@@ -325,39 +143,10 @@ const  TestCreation = () => {
     }
   };
   
-  // Toggle topic filter
-  const toggleTopicFilter = (topic: string) => {
-    setTopicFilters(prev => ({
-      ...prev,
-      [topic]: !prev[topic]
-    }));
-  };
-  
-  // Toggle difficulty filter
-  const toggleDifficultyFilter = (difficulty: string) => {
-    setDifficultyFilters(prev => ({
-      ...prev,
-      [difficulty]: !prev[difficulty]
-    }));
-  };
-  
   // Reset all filters
   const resetFilters = () => {
     setSearchQuery('');
-    
-    // Reset topic filters
-    const resetTopics: TopicFilter = {};
-    Object.keys(topicFilters).forEach(topic => {
-      resetTopics[topic] = false;
-    });
-    setTopicFilters(resetTopics);
-    
-    // Reset difficulty filters
-    setDifficultyFilters({
-      'Easy': false,
-      'Medium': false,
-      'Hard': false
-    });
+    setSelectedTopic('all');
   };
   
   // Save the custom test
@@ -416,76 +205,76 @@ const  TestCreation = () => {
     }
   };
   
-  // Loading state
-  if (loading) {
-    return (
-      <PageLayout>
-        <PageHeader 
-          title="Create Custom Test" 
-          subtitle="Select questions and set test parameters"
-        />
-        <div className="container-custom py-8">
-          <Card className="bg-secondary border-gray-800">
-            <CardHeader>
-              <CardTitle>
-                <Skeleton className="h-8 w-64 bg-gray-700" />
-              </CardTitle>
-              <CardDescription>
-                <Skeleton className="h-4 w-40 bg-gray-700 mt-2" />
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Skeleton className="h-20 w-full bg-gray-700" />
-              <Skeleton className="h-16 w-full bg-gray-700" />
-            </CardContent>
-          </Card>
-        </div>
-      </PageLayout>
-    );
-  }
+  // // Loading state
+  // if (loading) {
+  //   return (
+  //     <PageLayout>
+  //       <PageHeader 
+  //         title="Create Custom Test" 
+  //         subtitle="Select questions and set test parameters"
+  //       />
+  //       <div className="container-custom py-8">
+  //         <Card className="bg-secondary border-gray-800">
+  //           <CardHeader>
+  //             <CardTitle>
+  //               <Skeleton className="h-8 w-64 bg-gray-700" />
+  //             </CardTitle>
+  //             <CardDescription>
+  //               <Skeleton className="h-4 w-40 bg-gray-700 mt-2" />
+  //             </CardDescription>
+  //           </CardHeader>
+  //           <CardContent className="space-y-6">
+  //             <Skeleton className="h-20 w-full bg-gray-700" />
+  //             <Skeleton className="h-16 w-full bg-gray-700" />
+  //           </CardContent>
+  //         </Card>
+  //       </div>
+  //     </PageLayout>
+  //   );
+  // }
   
   return (
     <PageLayout>
       <PageHeader 
-        title="Create Custom Test" 
-        subtitle="Select questions and set test parameters"
+        title="Створення власного тесту" 
+        subtitle="Оберіть питання та налаштуйте параметри тесту"
       />
       
       <div className="container-custom py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left side: Test details */}
+          {/* Ліва частина: Деталі тесту */}
           <div className="lg:col-span-1">
             <Card className="bg-secondary border-gray-800 sticky top-24">
               <CardHeader>
-                <CardTitle>Test Details</CardTitle>
-                <CardDescription>Configure your custom test</CardDescription>
+                <CardTitle>Деталі тесту</CardTitle>
+                <CardDescription>Налаштуйте свій власний тест</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
-                  <Label htmlFor="test-title">Test Title</Label>
+                  <Label htmlFor="test-title">Назва тесту</Label>
                   <Input 
                     id="test-title" 
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter test name"
+                    placeholder="Введіть назву тесту"
                     className="bg-gray-800 border-gray-700"
                   />
                 </div>
                 
                 <div className="space-y-3">
-                  <Label htmlFor="test-desc">Description (Optional)</Label>
+                  <Label htmlFor="test-desc">Опис (необовʼязково)</Label>
                   <Textarea 
                     id="test-desc" 
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Brief description of the test"
+                    placeholder="Короткий опис тесту"
                     className="bg-gray-800 border-gray-700"
                     rows={3}
                   />
                 </div>
                 
                 <div className="space-y-3">
-                  <Label htmlFor="time-limit">Time Limit (minutes)</Label>
+                  <Label htmlFor="time-limit">Обмеження часу (хвилин)</Label>
                   <Input 
                     id="time-limit" 
                     type="number"
@@ -498,7 +287,7 @@ const  TestCreation = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="publish-switch">Publish Immediately</Label>
+                  <Label htmlFor="publish-switch">Опублікувати одразу</Label>
                   <Switch 
                     id="publish-switch" 
                     checked={isPublished}
@@ -510,14 +299,14 @@ const  TestCreation = () => {
                 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Selected Questions</Label>
+                    <Label>Обрані питання</Label>
                     <span className="text-sm font-medium">{selectedQuestions.length}</span>
                   </div>
                   
                   {selectedQuestions.length === 0 ? (
                     <div className="text-center py-6 text-gray-400">
-                      <p>No questions selected yet</p>
-                      <p className="text-sm mt-1">Select questions from the question pool</p>
+                      <p>Питання ще не обрано</p>
+                      <p className="text-sm mt-1">Оберіть питання з банку питань</p>
                     </div>
                   ) : (
                     <div className="max-h-60 overflow-y-auto">
@@ -531,7 +320,7 @@ const  TestCreation = () => {
                               {question.text}
                             </div>
                             <div className="text-xs text-gray-400">
-                              {question.topic} • {question.difficulty}
+                              {question.topic} 
                             </div>
                           </div>
                           <Button 
@@ -553,27 +342,27 @@ const  TestCreation = () => {
                   disabled={saving || selectedQuestions.length === 0 || !title.trim()}
                   onClick={handleSaveTest}
                 >
-                  {saving ? "Saving..." : "Save Custom Test"}
+                  {saving ? "Збереження..." : "Зберегти тест"}
                 </Button>
                 
                 {!title.trim() && (
                   <div className="text-xs text-amber-400 flex items-center gap-1">
                     <AlertCircle size={12} />
-                    <span>Please enter a title for your test</span>
+                    <span>Введіть назву тесту</span>
                   </div>
                 )}
                 
                 {selectedQuestions.length === 0 && (
                   <div className="text-xs text-amber-400 flex items-center gap-1">
                     <AlertCircle size={12} />
-                    <span>Please select at least one question</span>
+                    <span>Оберіть хоча б одне питання</span>
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
           
-          {/* Right side: Question selection */}
+          {/* Права частина: Вибір питань */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-2 mb-6">
@@ -581,13 +370,13 @@ const  TestCreation = () => {
                   value="question-pool" 
                   className="data-[state=active]:bg-lider-red data-[state=active]:text-white"
                 >
-                  Question Pool
+                  Доступні питання
                 </TabsTrigger>
                 <TabsTrigger 
                   value="selected-questions" 
                   className="data-[state=active]:bg-lider-red data-[state=active]:text-white"
                 >
-                  Selected Questions ({selectedQuestions.length})
+                  Обрані питання ({selectedQuestions.length})
                 </TabsTrigger>
               </TabsList>
               
@@ -599,7 +388,7 @@ const  TestCreation = () => {
                         <div className="relative">
                           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder="Search questions by text, number, or topic..."
+                            placeholder="Пошук за текстом, номером або темою..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 bg-gray-800 border-gray-700"
@@ -607,70 +396,45 @@ const  TestCreation = () => {
                         </div>
                       </div>
                       
-                      <Button 
-                        variant="outline" 
-                        onClick={resetFilters}
-                        className="border-gray-700"
-                      >
-                        Reset Filters
-                      </Button>
+                      {/* Select для вибору теми */}
+                      <div className="w-full md:w-1/3">
+                        <Select
+                          value={selectedTopic}
+                          onValueChange={setSelectedTopic}
+                        >
+                          <SelectTrigger className="w-full bg-gray-800 border-gray-700">
+                            <SelectValue placeholder="Фільтр за темою" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Всі теми</SelectItem>
+                            {topics.map(topic => (
+                              <SelectItem key={topic} value={topic}>
+                                {topic}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </CardHeader>
                   
                   <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="mb-2 block">Filter by Topic</Label>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                          {Object.keys(topicFilters).map(topic => (
-                            <div key={topic} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`topic-${topic}`} 
-                                checked={topicFilters[topic]}
-                                onCheckedChange={() => toggleTopicFilter(topic)}
-                              />
-                              <Label htmlFor={`topic-${topic}`} className="cursor-pointer text-sm">
-                                {topic}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label className="mb-2 block">Filter by Difficulty</Label>
-                        <div className="space-y-2">
-                          {Object.keys(difficultyFilters).map(difficulty => (
-                            <div key={difficulty} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`difficulty-${difficulty}`} 
-                                checked={difficultyFilters[difficulty]}
-                                onCheckedChange={() => toggleDifficultyFilter(difficulty)}
-                              />
-                              <Label htmlFor={`difficulty-${difficulty}`} className="cursor-pointer text-sm">
-                                {difficulty}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
+                    {/* Видалено чекбокси фільтра за темою */}
                     <Separator className="bg-gray-700" />
                     
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-medium">Available Questions</h3>
+                        <h3 className="font-medium">Оберіть питання</h3>
                         <span className="text-sm text-gray-400">
-                          {filteredQuestions.length} questions found
+                          {filteredQuestions.length} знайдено
                         </span>
                       </div>
                       
                       <div className="space-y-4">
                         {filteredQuestions.length === 0 ? (
                           <div className="text-center py-10 text-gray-400">
-                            <p>No questions match your filters</p>
-                            <p className="text-sm mt-1">Try changing your search or filters</p>
+                            <p>Питань за вашим фільтром не знайдено</p>
+                            <p className="text-sm mt-1">Спробуйте змінити пошук або фільтри</p>
                           </div>
                         ) : (
                           filteredQuestions.map(question => (
@@ -687,14 +451,12 @@ const  TestCreation = () => {
                                   <div>
                                     <div className="flex items-center gap-2">
                                       <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">
-                                        #{question.question_number}
+                                        №{question.question_number}
                                       </span>
                                       <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">
                                         {question.topic}
                                       </span>
-                                      <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">
-                                        {question.difficulty}
-                                      </span>
+                                     
                                     </div>
                                     <CardTitle className="text-base mt-2">
                                       {question.text}
@@ -713,12 +475,12 @@ const  TestCreation = () => {
                                     {selectedQuestions.some(q => q.id === question.id) ? (
                                       <>
                                         <Check size={16} className="mr-2" />
-                                        Selected
+                                        Обрано
                                       </>
                                     ) : (
                                       <>
                                         <Plus size={16} className="mr-2" />
-                                        Select
+                                        Обрати
                                       </>
                                     )}
                                   </Button>
@@ -730,7 +492,7 @@ const  TestCreation = () => {
                                   <AspectRatio ratio={16 / 9} className="bg-gray-950 mx-4 mb-4 rounded-md overflow-hidden">
                                     <img 
                                       src={question.image} 
-                                      alt="Question visual" 
+                                      alt="Зображення до питання" 
                                       className="w-full h-full object-contain"
                                     />
                                   </AspectRatio>
@@ -738,7 +500,7 @@ const  TestCreation = () => {
                               )}
                               
                               <CardContent className="p-4 pt-0">
-                                <h4 className="font-medium text-sm mb-2">Answers:</h4>
+                                <h4 className="font-medium text-sm mb-2">Варіанти відповідей:</h4>
                                 <div className="space-y-2">
                                   {question.answers.map((answer, index) => (
                                     <div 
@@ -769,22 +531,22 @@ const  TestCreation = () => {
               <TabsContent value="selected-questions" className="space-y-4">
                 <Card className="bg-secondary border-gray-800">
                   <CardHeader>
-                    <CardTitle>Selected Questions</CardTitle>
+                    <CardTitle>Обрані питання</CardTitle>
                     <CardDescription>
-                      {selectedQuestions.length} questions selected for this test
+                      {selectedQuestions.length} питань обрано для цього тесту
                     </CardDescription>
                   </CardHeader>
                   
                   <CardContent className="space-y-4">
                     {selectedQuestions.length === 0 ? (
                       <div className="text-center py-10 text-gray-400">
-                        <p>No questions selected yet</p>
-                        <p className="text-sm mt-1">Go to Question Pool to select questions</p>
+                        <p>Питання ще не обрано</p>
+                        <p className="text-sm mt-1">Перейдіть до банку питань, щоб обрати питання</p>
                         <Button 
                           className="mt-4 bg-lider-red hover:bg-red-700"
                           onClick={() => setActiveTab('question-pool')}
                         >
-                          Select Questions
+                          Обрати питання
                         </Button>
                       </div>
                     ) : (
@@ -803,7 +565,7 @@ const  TestCreation = () => {
                                   <div>
                                     <div className="flex items-center gap-2">
                                       <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">
-                                        #{question.question_number}
+                                        №{question.question_number}
                                       </span>
                                       <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">
                                         {question.topic}
@@ -818,7 +580,7 @@ const  TestCreation = () => {
                                   className="text-gray-400 hover:text-red-500"
                                 >
                                   <X size={16} className="mr-1" />
-                                  Remove
+                                  Видалити
                                 </Button>
                               </div>
                             </CardHeader>
@@ -828,13 +590,13 @@ const  TestCreation = () => {
                                 <AspectRatio ratio={16 / 9} className="bg-gray-950 rounded-md overflow-hidden mb-2 max-w-xs">
                                   <img 
                                     src={question.image} 
-                                    alt="Question visual" 
+                                    alt="Зображення до питання" 
                                     className="w-full h-full object-contain"
                                   />
                                 </AspectRatio>
                               )}
                               <div className="text-xs text-gray-400">
-                                {question.answers.length} answers • {question.answers.find(a => a.is_correct) ? "Single correct answer" : "Multiple correct answers"}
+                                {question.answers.length} відповідей • {question.answers.find(a => a.is_correct) ? "Одна правильна відповідь" : "Декілька правильних відповідей"}
                               </div>
                             </CardContent>
                           </Card>
@@ -849,7 +611,7 @@ const  TestCreation = () => {
                       disabled={saving || selectedQuestions.length === 0 || !title.trim()}
                       onClick={handleSaveTest}
                     >
-                      {saving ? "Saving..." : "Save Custom Test"}
+                      {saving ? "Збереження..." : "Зберегти тест"}
                     </Button>
                   </CardFooter>
                 </Card>
