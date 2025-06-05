@@ -176,3 +176,8 @@ cython_debug/
 # Custom
 .github/
 .idea/
+node_modules/
+backend/learning_service/app/data/
+
+# API Gateway
+backend/api_gateway/app/config.py

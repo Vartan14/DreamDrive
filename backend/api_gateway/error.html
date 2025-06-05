@@ -1,0 +1,18 @@
+DreamDrive
+GET
+http://localhost:8005/api/v1/users/me/
+Auth Type
+Bearer Token
+The authorization header will be automatically generated when you send the request. Learn more about
+ authorization.
+Token
+{{STUDENT_TOKEN}}
+404
+Not Found
+94 ms
+5.95 KB
+detail	<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="content-type" content="text/html; charset=utf-8"> <title>Page not found at /api/v1/users/me//</title> <meta name="robots" content="NONE,NOARCHIVE"> <style type="text/css"> html * { padding:0; margin:0; } body * { padding:10px 20px; } body * * { padding:0; } body { font:small sans-serif; background:#eee; color:#000; } body>div { border-bottom:1px solid #ddd; } h1 { font-weight:normal; margin-bottom:.4em; } h1 span { font-size:60%; color:#666; font-weight:normal; } table { border:none; border-collapse: collapse; width:100%; } td, th { vertical-align:top; padding:2px 3px; } th { width:12em; text-align:right; color:#666; padding-right:.5em; } #info { background:#f6f6f6; } #info ol { margin: 0.5em 4em; } #info ol li { font-family: monospace; } #summary { background: #ffc; } #explanation { background:#eee; border-bottom: 0px none; } pre.exception_value { font-family: sans-serif; color: #575757; font-size: 1.5em; margin: 10px 0 10px 0; } </style> </head> <body> <div id="summary"> <h1>Page not found <span>(404)</span></h1> <table class="meta"> <tr> <th>Request Method:</th> <td>GET</td> </tr> <tr> <th>Request URL:</th> <td>http://localhost/api/v1/users/me//</td> </tr> </table> </div> <div id="info"> <p> Using the URLconf defined in <code>app.urls</code>, Django tried these URL patterns, in this order: </p> <ol> <li> admin/ </li> <li> login/ [name='login'] </li> <li> schema/ [name='schema'] </li> <li> docs/ [name='docs'] </li> <li> api/v1/auth/ </li> <li> api/v1/auth/registration/ </li> <li> api/v1/auth/password/reset/ [name='password_reset'] </li> <li> api/v1/auth/password/reset/confirm/&lt;slug:uidb64&gt;/&lt;slug:token&gt;/ [name='password_reset_confirm'] </li> <li> accounts/ </li> <li> api/v1/auth/google/ [name='google_login'] </li> <li> api/v1/auth/google/callback/ [name='google_login_callback'] </li> <li> api/v1/users/ me/ [name='me'] </li> <li> api/v1/users/ ^$ [name='admin-users-list'] </li> <li> api/v1/users/ ^\.(?P&lt;format&gt;[a-z0-9]+)/?$ [name='admin-users-list'] </li> <li> api/v1/users/ ^(?P&lt;pk&gt;[^/.]+)/$ [name='admin-users-detail'] </li> <li> api/v1/users/ ^(?P&lt;pk&gt;[^/.]+)\.(?P&lt;format&gt;[a-z0-9]+)/?$ [name='admin-users-detail'] </li> <li> api/v1/users/ ^$ [name='api-root'] </li> <li> api/v1/users/ ^\.(?P&lt;format&gt;[a-z0-9]+)/?$ [name='api-root'] </li> <li> api/v1/groups/ </li> <li> api/v1/profiles/ </li> <li> ^media/(?P&lt;path&gt;.*)$ </li> <li> ^static/(?P&lt;path&gt;.*)$ </li> </ol> <p> The current path, <code>api/v1/users/me//</code>, didn’t match any of these. </p> </div> <div id="explanation"> <p> You’re seeing this error because you have <code>DEBUG = True</code> in your Django settings file. Change that to <code>False</code>, and Django will display a standard 404 page. </p> </div> </body> </html>
+Variables in request
+STUDENT_TOKEN
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ4MTEyODk5LCJpYXQiOjE3NDgxMDkyOTksImp0aSI6ImEzZDQxOTUwOTZm...
+Online
