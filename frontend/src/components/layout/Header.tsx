@@ -161,12 +161,12 @@ const Header = () => {
                     <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/admin/schedule">Огляд розкладу</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
-                      <Link to="/admin/branches">Управління філіями</Link>
-                    </DropdownMenuItem>
                     {/* <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
-                      <Link to="/materials">Управління матеріалами</Link>
+                      <Link to="/admin/branches">Управління філіями</Link>
                     </DropdownMenuItem> */}
+                    <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
+                      <Link to="/materials">Управління матеріалами</Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild className="hover:bg-gray-800 focus:bg-gray-800">
                       <Link to="/admin/reviews">Управління відгуками</Link>
                     </DropdownMenuItem>

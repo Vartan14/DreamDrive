@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-import os
-from pathlib import Path
 
+from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
+# SECRET_KEY = 'django-insecure-k^h(yvqs$x=l#)!-(9$ujhxv@j%73s4078clk=m+7a&719qc=q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "jazzmin",
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'core',
-    'payments',
 ]
 
 MIDDLEWARE = [
@@ -92,6 +91,8 @@ DATABASES = {
 }
 
 
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -127,6 +128,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = BASE_DIR / 'templates'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -136,16 +142,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-            'core.views.CustomJWTAuthentication',
+            'core.auth.CustomJWTAuthentication',
     ),
 }
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Dream Drive Payment Service Admin",
-    "site_header": "Payment Service",
-    "site_brand": "Payment Service",
-    "welcome_sign": "Ласкаво просимо до адмінки Payment Service!",
-    "copyright": "Payment Service",
+    "site_title": "Dream Drive Public Service Admin",
+    "site_header": "Public Service",
+    "site_brand": "Public Service",
+    "welcome_sign": "Ласкаво просимо до адмінки Public Service!",
+    "copyright": "Public Service",
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
@@ -154,25 +160,13 @@ JAZZMIN_SETTINGS = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Payment Service',
-    'DESCRIPTION': 'Payment Service API for DreamDrive',
+    'TITLE': 'Public Service',
+    'DESCRIPTION': 'Public Service API for DreamDrive',
     'VERSION': '1.0.0',
-    'AUTHENTICATION_WHITELIST': ['core.views.CustomJWTAuthentication'],
-    'EXTENSIONS_INFO': {
-        'core.spectacular_extensions.CustomJWTAuthenticationScheme': {},
-    },
+    'AUTHENTICATION_WHITELIST': ['core.auth.CustomJWTAuthentication'],
+
 }
 
 
 # Django Secret
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-
-# LiqPay settings
-LIQPAY_PUBLIC_KEY = os.getenv('LIQPAY_PUBLIC_KEY')
-LIQPAY_PRIVATE_KEY = os.getenv('LIQPAY_PRIVATE_KEY')
-
-LIQPAY_RESULT_URL = 'http://localhost:8080/payments/result/'
-LIQPAY_CALLBACK_URL = 'https://6cd3-77-47-207-201.ngrok-free.app/api/v1/payments/callback/'
-
-AUTH_SERVICE_URL ='http://api_gateway:8005/api/v1/payment-callback/'
-PAYMENT_API_KEY ='django-insecure--*+x1us_e0j+q++b&*g6$jna6of%n1k58c@zka)vzcp+ph48mg'

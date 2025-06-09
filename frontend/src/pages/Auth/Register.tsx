@@ -92,7 +92,7 @@ const Register = () => {
           <Card className="bg-secondary border-gray-700">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Створіть акаунт</CardTitle>
-              <CardDescription className="text-gray-300">Зареєструйтесь, щоб відстежувати свій прогрес навчання водінню</CardDescription>
+              <CardDescription className="text-gray-300">Зареєструйтесь, щоб розпочати навчання</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={handleSubmit}>
