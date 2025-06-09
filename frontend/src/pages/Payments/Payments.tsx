@@ -209,7 +209,7 @@ const Payments = () => {
                     className={`w-full ${plan.popular ? 'bg-lider-red hover:bg-red-700' : ''}`}
                     onClick={() => handleSelectPlan(plan)}
                   >
-                    Обрати
+                    Оплатити
                   </Button>
                 </CardFooter>
               </Card>

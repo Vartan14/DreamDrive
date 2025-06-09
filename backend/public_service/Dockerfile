@@ -6,7 +6,7 @@ COPY requirements.txt /tmp/requirements.txt
 COPY requirements.dev.txt /tmp/requirements.dev.txt
 COPY app /app
 WORKDIR /app
-EXPOSE 8000
+EXPOSE 8004
 
 ARG DEV=false
 RUN python -m venv /py && \
@@ -27,6 +27,7 @@ RUN python -m venv /py && \
         --no-create-home \
         django-user
 
+# Встановлюємо tzdata і виставляємо часовий пояс для Alpine
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/Europe/Kyiv /etc/localtime && \
     echo "Europe/Kyiv" > /etc/timezone

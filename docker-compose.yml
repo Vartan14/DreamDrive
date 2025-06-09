@@ -115,6 +115,34 @@ services:
     env_file:
       - ./backend/payment_service/.env
 
+  public_service_app:
+    container_name: public_service-app-1
+    build:
+      context: ./backend/public_service
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/public_service/app:/app
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py runserver 0.0.0.0:8004"
+    env_file:
+      - ./backend/public_service/.env
+    depends_on:
+      - public_service_db
+
+  public_service_db:
+    image: postgres:15-alpine
+    container_name: public_service-db-1
+    ports:
+      - "5436:5436"
+    volumes:
+      - pbs-db-data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/public_service/.env
 
   api_gateway:
     container_name: api_gateway-app-1
@@ -135,6 +163,7 @@ services:
       - auth_user_service_app
       - learning_service_app
       - schedule_service_app
+      - payment_service_app
 
 #  frontend:
 #    build:
@@ -155,5 +184,7 @@ volumes:
   ls-db-data:
   ss-db-data:
   ps-db-data:
+  pbs-db-data:
+
 
 

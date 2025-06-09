@@ -94,9 +94,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
               <div className="text-center py-4">
                 <AlertCircle className="mx-auto mb-2 text-yellow-500" size={24} />
                 <p className="text-gray-400 mb-3">Доступно після підписки</p>
-                <Button asChild size="sm" className="bg-lider-red hover:bg-red-700">
+                {/* <Button asChild size="sm" className="bg-lider-red hover:bg-red-700">
                   <Link to="/payments">Оформити підписку</Link>
-                </Button>
+                </Button> */}
               </div>
             )}
           </CardContent>
@@ -113,36 +113,48 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="mb-2 flex justify-between text-sm">
-              <span>Завершено</span>
-              <span className="font-medium">{completionPercentage}%</span>
-            </div>
-            <Progress value={completionPercentage} className="h-2 bg-gray-700" />
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span>Пройдено розділів</span>
-                <span className="font-medium">{progress.completedMaterials}/{progress.totalMaterials}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span>Вирішено білетів</span>
-                <span className="font-medium">{progress.completedTests}</span>
-              </div>
-              {progress.testScores.length > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span>Правильних відповідей</span>
-                  <span className="font-medium">
-                    {Math.round(
-                      progress.testScores.reduce((sum, score) => sum + score, 0) /
-                      progress.testScores.length
-                    )}%
-                  </span>
+            {user.is_paid ? (
+              <>
+                <div className="mb-2 flex justify-between text-sm">
+                  <span>Завершено</span>
+                  <span className="font-medium">{completionPercentage}%</span>
                 </div>
-              )}
-              <div className="flex justify-between items-center text-sm">
-                <span>Середній час</span>
-                <span className="font-medium">{progress.avgTime.m}хв {progress.avgTime.s}с</span>
+                <Progress value={completionPercentage} className="h-2 bg-gray-700" />
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Пройдено розділів</span>
+                    <span className="font-medium">{progress.completedMaterials}/{progress.totalMaterials}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Вирішено білетів</span>
+                    <span className="font-medium">{progress.completedTests}</span>
+                  </div>
+                  {progress.testScores.length > 0 && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Правильних відповідей</span>
+                      <span className="font-medium">
+                        {Math.round(
+                          progress.testScores.reduce((sum, score) => sum + score, 0) /
+                          progress.testScores.length
+                        )}%
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Середній час</span>
+                    <span className="font-medium">{progress.avgTime.m}хв {progress.avgTime.s}с</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <AlertCircle className="mx-auto mb-2 text-yellow-500" size={24} />
+                <p className="text-gray-400 mb-3">Щоб переглядати прогрес, оформіть підписку</p>
+                {/* <Button asChild size="sm" className="bg-lider-red hover:bg-red-700">
+                  <Link to="/payments">Оформити підписку</Link>
+                </Button> */}
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </section>
